@@ -230,7 +230,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename ../diagrams/digitSix.pdf
+	filename ./diagrams/digitSix.pdf
 	lyxscale 50
 	width 50text%
 
@@ -334,7 +334,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demManifoldPrint1.pdf
+	filename ./diagrams/demManifoldPrint1.pdf
 	lyxscale 50
 	width 45text%
 
@@ -351,7 +351,7 @@ status open
 
 
 \begin_inset Graphics
-	filename ../diagrams/demManifoldPrint2.pdf
+	filename ./diagrams/demManifoldPrint2.pdf
 	lyxscale 50
 	width 45text%
 
@@ -1156,7 +1156,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/gpSample.pdf
+	filename ./diagrams/gpSample.pdf
 	lyxscale 50
 	width 45text%
 
@@ -1191,7 +1191,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/gpCovariance.pdf
+	filename ./diagrams/gpCovariance.pdf
 	lyxscale 50
 	width 45text%
 
@@ -1370,7 +1370,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demGPCov2D1_2_1.pdf
+	filename ./diagrams/demGPCov2D1_2_1.pdf
 	lyxscale 30
 	width 30text%
 
@@ -1405,7 +1405,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demGPCov2D1_2_2.pdf
+	filename ./diagrams/demGPCov2D1_2_2.pdf
 	lyxscale 30
 	width 30text%
 
@@ -1440,7 +1440,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demGPCov2D1_2_3.pdf
+	filename ./diagrams/demGPCov2D1_2_3.pdf
 	lyxscale 30
 	width 30text%
 
@@ -1578,7 +1578,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demGPCov2D1_5_1.pdf
+	filename ./diagrams/demGPCov2D1_5_1.pdf
 	lyxscale 30
 	width 30text%
 
@@ -1613,7 +1613,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demGPCov2D1_5_2.pdf
+	filename ./diagrams/demGPCov2D1_5_2.pdf
 	lyxscale 30
 	width 30text%
 
@@ -1648,7 +1648,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demGPCov2D1_5_3.pdf
+	filename ./diagrams/demGPCov2D1_5_3.pdf
 	lyxscale 30
 	width 30text%
 
@@ -2501,7 +2501,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demCovFuncSample1.pdf
+	filename ./diagrams/demCovFuncSample1.pdf
 	lyxscale 40
 	width 30text%
 
@@ -2536,7 +2536,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demCovFuncSample2.pdf
+	filename ./diagrams/demCovFuncSample2.pdf
 	lyxscale 40
 	width 30text%
 
@@ -2571,7 +2571,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demCovFuncSample3.pdf
+	filename ./diagrams/demCovFuncSample3.pdf
 	lyxscale 40
 	width 30text%
 
@@ -2605,42 +2605,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demCovFuncSample4.pdf
-	lyxscale 40
-	width 30text%
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\begin_inset space \hfill{}
-\end_inset
-
-
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption Standard
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename ../diagrams/demCovFuncSample5.pdf
+	filename ./diagrams/demCovFuncSample4.pdf
 	lyxscale 40
 	width 30text%
 
@@ -2675,41 +2640,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demCovFuncSample6.pdf
-	lyxscale 40
-	width 30text%
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption Standard
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename ../diagrams/demCovFuncSample7.pdf
+	filename ./diagrams/demCovFuncSample5.pdf
 	lyxscale 40
 	width 30text%
 
@@ -2744,7 +2675,76 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demCovFuncSample8.pdf
+	filename ./diagrams/demCovFuncSample6.pdf
+	lyxscale 40
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ./diagrams/demCovFuncSample7.pdf
+	lyxscale 40
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ./diagrams/demCovFuncSample8.pdf
 	lyxscale 40
 	width 30text%
 
@@ -3002,7 +3002,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/ppcaGraph.pdf
+	filename ./diagrams/ppcaGraph.pdf
 	width 35text%
 
 \end_inset
@@ -3013,7 +3013,7 @@ status open
 
 
 \begin_inset Graphics
-	filename ../diagrams/gplvmGraph.pdf
+	filename ./diagrams/gplvmGraph.pdf
 	width 35text%
 
 \end_inset
@@ -3670,7 +3670,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename ../diagrams/gpGraphGPLVM.pdf
+	filename ./diagrams/gpGraphGPLVM.pdf
 	width 35text%
 
 \end_inset
@@ -3835,7 +3835,7 @@ literal "true"
  In 
 \begin_inset CommandInset citation
 LatexCommand citet
-key "Bishop:gtm_ncomp98"
+key "Bishop:gtmncomp98"
 literal "true"
 
 \end_inset
@@ -4026,7 +4026,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/pcaOil100.pdf
+	filename ./diagrams/pcaOil100.pdf
 	lyxscale 40
 	width 42text%
 	keepAspectRatio
@@ -4062,7 +4062,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/gplvmOil100.pdf
+	filename ./diagrams/gplvmOil100.pdf
 	lyxscale 40
 	width 42text%
 	keepAspectRatio
@@ -4098,7 +4098,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/nonmetricMdsOil100.pdf
+	filename ./diagrams/nonmetricMdsOil100.pdf
 	lyxscale 40
 	width 42text%
 	keepAspectRatio
@@ -4134,7 +4134,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/sammonOil100.pdf
+	filename ./diagrams/sammonOil100.pdf
 	lyxscale 40
 	width 42text%
 	keepAspectRatio
@@ -4170,7 +4170,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/gtmOil100.pdf
+	filename ./diagrams/gtmOil100.pdf
 	lyxscale 40
 	width 42text%
 	keepAspectRatio
@@ -4206,7 +4206,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/kpcaOil100.pdf
+	filename ./diagrams/kpcaOil100.pdf
 	lyxscale 40
 	width 42text%
 	keepAspectRatio
@@ -4785,7 +4785,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename ../diagrams/trOil1.pdf
+	filename ./diagrams/trOil1.pdf
 	lyxscale 50
 	width 75text%
 	keepAspectRatio
@@ -4826,7 +4826,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename ../diagrams/fullGplvmOil1000.pdf
+	filename ./diagrams/fullGplvmOil1000.pdf
 	lyxscale 50
 	width 75text%
 	keepAspectRatio
@@ -5148,7 +5148,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demStick1Connected.pdf
+	filename ./diagrams/demStick1Connected.pdf
 	lyxscale 50
 	width 45text%
 
@@ -5183,7 +5183,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demStick3Connected.pdf
+	filename ./diagrams/demStick3Connected.pdf
 	lyxscale 50
 	width 45text%
 
@@ -5342,7 +5342,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename ../diagrams/demStick3AngleLatent.pdf
+	filename ./diagrams/demStick3AngleLatent.pdf
 	lyxscale 50
 	width 80col%
 
@@ -5391,7 +5391,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demStick3Angle1.pdf
+	filename ./diagrams/demStick3Angle1.pdf
 	lyxscale 40
 	height 1in
 	keepAspectRatio
@@ -5427,43 +5427,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demStick3Angle2.pdf
-	lyxscale 40
-	height 1in
-	keepAspectRatio
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\begin_inset space \hfill{}
-\end_inset
-
- 
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset Caption Standard
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename ../diagrams/demStick3Angle3.pdf
+	filename ./diagrams/demStick3Angle2.pdf
 	lyxscale 40
 	height 1in
 	keepAspectRatio
@@ -5499,7 +5463,43 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demStick3Angle4.pdf
+	filename ./diagrams/demStick3Angle3.pdf
+	lyxscale 40
+	height 1in
+	keepAspectRatio
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+ 
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ./diagrams/demStick3Angle4.pdf
 	lyxscale 40
 	height 1in
 	keepAspectRatio
@@ -5612,7 +5612,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demVowels2.pdf
+	filename ./diagrams/demVowels2.pdf
 	lyxscale 50
 	width 80col%
 	keepAspectRatio
@@ -5648,7 +5648,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demVowels3.pdf
+	filename ./diagrams/demVowels3.pdf
 	lyxscale 50
 	width 80col%
 	keepAspectRatio
@@ -5976,7 +5976,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/dynSample11.pdf
+	filename ./diagrams/dynSample11.pdf
 	lyxscale 50
 	width 30text%
 
@@ -6011,7 +6011,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/dynSample21.pdf
+	filename ./diagrams/dynSample21.pdf
 	lyxscale 50
 	width 30text%
 
@@ -6046,7 +6046,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/dynSample31.pdf
+	filename ./diagrams/dynSample31.pdf
 	lyxscale 50
 	width 30text%
 
@@ -6081,7 +6081,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/dynSample12.pdf
+	filename ./diagrams/dynSample12.pdf
 	lyxscale 50
 	width 30text%
 
@@ -6116,7 +6116,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/dynSample22.pdf
+	filename ./diagrams/dynSample22.pdf
 	lyxscale 50
 	width 30text%
 
@@ -6151,7 +6151,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/dynSample32.pdf
+	filename ./diagrams/dynSample32.pdf
 	lyxscale 50
 	width 30text%
 
@@ -6310,7 +6310,7 @@ status open
 \begin_layout Plain Layout
 \align center
 \begin_inset Graphics
-	filename ../diagrams/demStick2Connected.pdf
+	filename ./diagrams/demStick2Connected.pdf
 	lyxscale 50
 	width 45text%
 
@@ -6396,7 +6396,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demRobotWireless1.pdf
+	filename ./diagrams/demRobotWireless1.pdf
 	lyxscale 50
 	width 45text%
 
@@ -6431,7 +6431,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demRobotWireless2.pdf
+	filename ./diagrams/demRobotWireless2.pdf
 	lyxscale 50
 	width 45text%
 
@@ -6465,7 +6465,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demRobotWireless3.pdf
+	filename ./diagrams/demRobotWireless3.pdf
 	lyxscale 50
 	width 45text%
 
@@ -6500,7 +6500,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename ../diagrams/demRobotWireless4.pdf
+	filename ./diagrams/demRobotWireless4.pdf
 	lyxscale 50
 	width 45text%
 
