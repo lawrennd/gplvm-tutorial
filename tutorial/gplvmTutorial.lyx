@@ -1,0 +1,6632 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass sheftech
+\begin_preamble
+\usepackage{a4wide}
+\end_preamble
+\use_default_options false
+\maintain_unincluded_children false
+\language british
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 0
+\use_package mathdots 0
+\use_package mathtools 1
+\use_package mhchem 0
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine natbib
+\cite_engine_type authoryear
+\biblio_style plainnat
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 0
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+The Gaussian Process Latent Variable Model
+\end_layout
+
+\begin_layout Date
+27th January 2006
+\end_layout
+
+\begin_layout Author
+Neil D.
+ Lawrence
+\end_layout
+
+\begin_layout Abstract
+The Gaussian process latent variable model (GP-LVM) is a recently proposed
+ probabilistic approach to obtaining a reduced dimension representation
+ of a data set.
+ In this tutorial we motivate and describe the GP-LVM, giving reviews of
+ the model itself and some of the concepts behind it.
+ 
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+The Gaussian process latent variable model (GP-LVM) is a powerful approach
+ to probabilistic non-linear dimensionality reduction.
+ It was inspired by, and is related to, a class of probabilistic dimensionality
+ reduction techniques known as latent variable models.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+In these notes we will first review the form of these latent variable models,
+ mentioning briefly the related non-linear dimensionality reduction techniques.
+\end_layout
+
+\end_inset
+
+ In this tutorial we will review in detail a 
+\emph on
+linear
+\emph default
+ dimensionality reduction technique known as probabilistic PCA 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Tipping:probpca99"
+literal "true"
+
+\end_inset
+
+.
+ As we shall see, by taking an alternative view point of the latent variable
+ model behind PCA we can develop a novel, alternative, interpretation of
+ probabilistic PCA.
+ One that, as it turns out, will lend itself to an elegant non-linearisation
+ through Gaussian processes.
+ However before discussing the resulting model in detail we will conduct
+ a brief review of Gaussian processes, discussing what it means to have
+ a prior over functions and what Gaussian distributed functions can look
+ like.
+ 
+\end_layout
+
+\begin_layout Standard
+Finally we shall round off by discussing the characteristics of the GP-LVM
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+in the context of other dimensionality reduction techniques
+\end_layout
+
+\end_inset
+
+ and by mentioning some extensions of the model.
+\end_layout
+
+\begin_layout Standard
+In the notes we will make use of examples that can be recreated through
+ code downloaded from 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://www.dcs.shef.ac.uk/~neil/fgplvm
+\end_layout
+
+\end_inset
+
+.
+ An additional package of demonstrations associated with this presentation
+ has been placed at 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://www.dcs.shef.ac.uk/~neil/oxford
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Motivation
+\end_layout
+
+\begin_layout Standard
+Many data sets we deal with are high dimensional.
+ The `curse of dimensionality' implies that to correctly understand the
+ structure of a high dimensional data set we need many data points, exponentiall
+y many in the number of dimensions.
+ However, in practice we find that we often do very well with much smaller
+ data sets than we might expect to need.
+ One possible reason for this is that many data sets of interest, while
+ seemingly high dimensional, have an intrinsic dimensionality which is much
+ lower.
+ Let us consider the example of handwritten digits.
+\end_layout
+
+\begin_layout Standard
+In Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:digit6"
+
+\end_inset
+
+ we show a hand-written 6 taken from the USPS Cedar CD-ROM handwritten digits
+ training set.
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename ../diagrams/digitSix.pdf
+	lyxscale 50
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+small 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Digit 6 from the USPS Cedar CD-ROM.
+ The digit is 64 pixels by 57 pixels giving it 3,648 dimensions.
+ 
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:digit6"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+The data point is 3,648 dimensional as it is printed in a 64 pixel by 57
+ pixel image.
+ However, if our data is based on a few simple transformations of this digit,
+ it may not span all 3,648 dimensions of the space.
+ To see this consider Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:twoManifolds"
+
+\end_inset
+
+.
+ Here we have created a data set by rotating the original digit 360 times,
+ each time by one degree.
+ The data is then projected onto its second and third principal components.
+ The resulting projection clearly shows a circular shape.
+ There is some noise (presumably associated with the nearest neighbour interpola
+tion used in the rotation of the image) but the structure of the space is
+ clear.
+ Further examination of the principal components (which is possible with
+ the software on line) also reveals that the dataset is inherently one dimension
+al.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demManifoldPrint1.pdf
+	lyxscale 50
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename ../diagrams/demManifoldPrint2.pdf
+	lyxscale 50
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Rotation of handwritten 6.
+ A data set is generated by rotating the original image 360 times (
+\family typewriter
+prepDemManifold
+\family default
+).
+ The data set is then visualised by projecting into the second and third
+ principal component.
+ In (a) the full rotation is visualised (
+\family typewriter
+demManifoldPrint([2 3], 'all')
+\family default
+), in (b) some rotations are assumed to be associated with the digit 6 and
+ others from the digit 9 (
+\family typewriter
+demManifoldPrint([2 3], 'sixnine')
+\family default
+).
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:twoManifolds"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In practice of course real data sets will not be generated by a simple rotation
+ of a one dimensional space.
+ However, it seems reasonable to assume that a data set might consist of
+ a fixed number of `prototypes' which undergo a limited number of transformation
+s and then are, perhaps, corrupted by some noise.
+ If this is the case, then it makes sense to model high dimensional data
+ by seeking a low dimensional representation.
+ In statistics the standard approach to this problem is multi-dimensional
+ scaling (MDS, see 
+\emph on
+e.g.
+
+\emph default
+ 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Mardia:multivariate79"
+literal "true"
+
+\end_inset
+
+).
+ More recently in machine learning several spectral approaches have been
+ proposed 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Tenenbaum:isomap00,Roweis:lle00,Weinberger:learning04"
+literal "true"
+
+\end_inset
+
+ some of which may be seen as classical MDS with a particular approach to
+ learning a distance matrix.
+ We wish to focus on probabilistically inspired approaches.
+ Having an algorithm with a probabilistic interpretation allows the algorithm
+ to be extended in a logical manner and eases integration of the approach
+ in a larger system.
+ All currently published extensions and applications of the GP-LVM take
+ advantage of its probabilistic interpretation in one form or another 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Grochow:styleik04,Urtasun:priors05,Wang:gpdm05,Shon:learning05"
+literal "true"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+In the next section we discuss, perhaps, the simplest latent variable model
+ that can be used for dimensional reduction, probabilistic PCA.
+ The model is fundamentally linear, but it illustrates the basic concepts
+ behind latent variable models.
+ 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+In the same section we will briefly outline previous non-linear approaches
+ which fall within the same family.
+\end_layout
+
+\end_inset
+
+ We will then briefly review Gaussian processes (in Section
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:GPs"
+
+\end_inset
+
+) after which we will introduce the fundamental re-thinking of the latent
+ variable model behind PCA that enables dual probabilistic PCA and leads
+ to the GP-LVM (Section
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:GPLVM"
+
+\end_inset
+
+).
+ We will then show various results achieved with the GP-LVM and briefly
+ mention some enhancements.
+\end_layout
+
+\begin_layout Section
+Probabilistic PCA
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:PPCA"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Probabilistic PCA is a simple latent variable model where the latent space,
+ 
+\begin_inset Formula $\mathbf{X}=\left[\mathbf{x}_{1},\dots,\mathbf{x}_{N}\right]^{\textrm{T}}$
+\end_inset
+
+ is assumed to be related to the 
+\emph on
+centred data set
+\emph default
+, 
+\begin_inset Formula $\mathbf{Y}=\left[\mathbf{y}_{1},\dots,\mathbf{y}_{N}\right]^{\textrm{T}}$
+\end_inset
+
+ through a linear mapping that is corrupted by noise, 
+\begin_inset Formula 
+\[
+\mathbf{y}_{n}=\mathbf{W}\mathbf{x}_{n}+\boldsymbol{\eta}_{n},
+\]
+
+\end_inset
+
+where the mapping is given by 
+\begin_inset Formula $\mathbf{W}\in\Re^{D\times q}$
+\end_inset
+
+ with 
+\begin_inset Formula $D$
+\end_inset
+
+ the dimension of the data space and 
+\begin_inset Formula $q$
+\end_inset
+
+ the dimension of the latent space and 
+\begin_inset Formula $\boldsymbol{\eta}_{n}$
+\end_inset
+
+ is a vector of noise terms.
+ For the particular case of probabilistic PCA, the noise is taken to be
+ Gaussian distributed,
+\begin_inset Formula 
+\[
+p\left(\boldsymbol{\eta}_{n}|\beta\right)=N\left(\boldsymbol{\eta}_{n}|\mathbf{0},\beta^{-1}\mathbf{I}\right),
+\]
+
+\end_inset
+
+with a mean of zero and a spherical covariance given by 
+\begin_inset Formula $\beta^{-1}\mathbf{I}$
+\end_inset
+
+.
+ The parameter 
+\begin_inset Formula $\beta$
+\end_inset
+
+ is an inverse variance and is therefore referred to as a precision.
+\end_layout
+
+\begin_layout Standard
+The conditional probability of the data given the latent space can be written
+ as
+\begin_inset Formula 
+\[
+p\left(\mathbf{y}_{n}|\mathbf{x}_{n},\mathbf{W},\beta\right)=N\left(\mathbf{y}_{n}|\mathbf{W}\mathbf{x}_{n},\beta^{-1}\mathbf{I}\right),
+\]
+
+\end_inset
+
+and assuming independence across data points we have
+\begin_inset Formula 
+\begin{equation}
+p\left(\mathbf{Y}|\mathbf{X},\mathbf{W},\beta\right)=\prod_{n=1}^{N}N\left(\mathbf{y}_{n}|\mathbf{W}\mathbf{x}_{n},\beta^{-1}\mathbf{I}\right).\label{eq:ppcaLikelihood}
+\end{equation}
+
+\end_inset
+
+Following the Bayesian nomenclature, in anticipation of a prior distribution
+ over the latent space, this term can be seen as the 
+\emph on
+likelihood
+\emph default
+ of the data 
+\begin_inset Formula $\mathbf{Y}$
+\end_inset
+
+ given 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+.
+ We note in passing that it is also the likelihood associated with a least-squar
+es multi-variate regression: if we are given 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+ and maximise the likelihood with respect to 
+\begin_inset Formula $\mathbf{W}$
+\end_inset
+
+ we recover
+\begin_inset Formula 
+\[
+\hat{\mathbf{W}}\mathbf{X}^{\textrm{T}}\mathbf{X}=\mathbf{Y}^{\textrm{T}}\mathbf{X},
+\]
+
+\end_inset
+
+which may be solved for 
+\begin_inset Formula $\hat{\mathbf{W}}$
+\end_inset
+
+ to obtain the least squares regression estimate of 
+\begin_inset Formula $\mathbf{W}$
+\end_inset
+
+.
+ In probabilistic PCA however, the values of 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+ aren't given, they are 
+\emph on
+nuisance parameters
+\emph default
+.
+ The standard approach when dealing with these parameters is to consider
+ a 
+\emph on
+prior distribution
+\emph default
+ over the latent space, 
+\begin_inset Formula $p\left(\mathbf{X}\right)$
+\end_inset
+
+, and seek to marginalise the values of 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsection
+Gaussian Prior
+\end_layout
+
+\begin_layout Standard
+The choice of prior distribution will clearly have an effect on the optimum
+ value of 
+\begin_inset Formula $\mathbf{W}$
+\end_inset
+
+.
+ If the latent distributions are chosen to be independent across 
+\begin_inset Formula $q$
+\end_inset
+
+ and non-Gaussian, the latent variable model behind independent component
+ analysis 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Bell:ica95,MacKay:ica96"
+literal "true"
+
+\end_inset
+
+ is recovered in the limit as 
+\begin_inset Formula $\beta\rightarrow\infty$
+\end_inset
+
+.
+ It has also long been known that if the latent distribution is chosen to
+ be Gaussian then PCA is recovered in the limit as 
+\begin_inset Formula $\beta\rightarrow\infty$
+\end_inset
+
+ (this observation inspired sensible PCA 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Roweis:SPCA97"
+literal "true"
+
+\end_inset
+
+).
+ More interestingly 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Tipping:probpca99"
+literal "true"
+
+\end_inset
+
+ showed that if the latent distribution is taken to be Gaussian then the
+ maximum likelihood solution for 
+\begin_inset Formula $\mathbf{W}$
+\end_inset
+
+ can span the principal subspace of the data even when 
+\begin_inset Formula $\beta$
+\end_inset
+
+ is finite.
+ The form of the Gaussian prior is chosen by convention
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Using non-zero mean and non-unit covariance merely leads to a redundant
+ parameterisation of the model.
+ However this redundant parameterisation can be exploited in certain circumstanc
+es to give faster converging algorithms 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Sanguinetti:accounting05"
+literal "true"
+
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+ to be zero mean and unit covariance,
+\begin_inset Formula 
+\begin{equation}
+p\left(\mathbf{X}\right)=\prod_{n=1}^{N}p\left(\mathbf{x}_{n}\right)=\prod_{n=1}^{N}N\left(\mathbf{x}_{n}|\mathbf{0},\mathbf{I}\right).\label{eq:ppcaPrior}
+\end{equation}
+
+\end_inset
+
+The marginal likelihood can then be computed as follows
+\begin_inset Formula 
+\begin{eqnarray}
+p\left(\mathbf{Y}|\mathbf{W},\beta\right) & = & \prod_{n=1}^{N}\int N\left(\mathbf{y}_{n}|\mathbf{W}\mathbf{x}_{n},\beta^{-1}\mathbf{I}\right)N\left(\mathbf{x}_{n}|\mathbf{0},\mathbf{I}\right)d\mathbf{x}_{n}\label{eq:firstLine}\\
+ & \propto & \prod_{n=1}^{N}\int\exp\left(-\frac{1}{2}\left(\beta\mathbf{y}_{n}^{\textrm{T}}\mathbf{y}_{n}-2\beta\mathbf{y}_{n}^{\textrm{T}}\mathbf{W}\mathbf{x}_{n}+\mathbf{x}_{n}^{\textrm{T}}\left(\beta\mathbf{W}^{\textrm{T}}\mathbf{W}+\mathbf{I}\right)\mathbf{x}_{n}\right)\right)d\mathbf{x}_{n}\label{eq:secondLine}\\
+ & \propto & \prod_{n=1}^{N}\exp\left(-\frac{1}{2}\left(\mathbf{y}_{n}^{\textrm{T}}\left(\beta\mathbf{I}-\beta^{2}\mathbf{W}\left(\beta\mathbf{W}^{\textrm{T}}\mathbf{W}+\mathbf{I}\right)^{-1}\mathbf{W}^{\textrm{T}}\right)\mathbf{y}_{n}\right)\right)\label{eq:thirdLine}
+\end{eqnarray}
+
+\end_inset
+
+where the first line (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:firstLine"
+
+\end_inset
+
+) is obtained through multiplying (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ppcaLikelihood"
+
+\end_inset
+
+) and (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ppcaPrior"
+
+\end_inset
+
+) to obtain the joint likelihood, and introducing the intergrad to marginalise
+ 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+.
+ The second line (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:secondLine"
+
+\end_inset
+
+) is obtained by expanding the squares, (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:thirdLine"
+
+\end_inset
+
+) is then obtained by standard integrals on Gaussians (see Appendix B on
+ Gaussian integrals in 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Bishop:book95"
+literal "true"
+
+\end_inset
+
+ for a proof).
+ We can obtain the final solution through inspection of (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:thirdLine"
+
+\end_inset
+
+): the matrix associated with the quadratic term has the form of the matrix
+ inversion lemma
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+In its most general form the matrix inversion lemma is 
+\begin_inset Formula $\left(\mathbf{A}+\mathbf{BC}\mathbf{D}\right)^{-1}=\mathbf{A}^{-1}-\mathbf{A}^{-1}\mathbf{B}\left(\mathbf{C}^{-1}+\mathbf{D}\mathbf{A}^{-1}\mathbf{B}\right)^{-1}\mathbf{D}\mathbf{A}^{-1}$
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+ and there are no linear terms in 
+\begin_inset Formula $\mathbf{y}_{n}$
+\end_inset
+
+, implying that the solution is a product of zero mean Gaussians,
+\begin_inset Formula 
+\begin{equation}
+p\left(\mathbf{Y}|\mathbf{W},\beta\right)=\prod_{n=1}^{N}N\left(\mathbf{y}_{n}|\mathbf{0},\mathbf{C}\right),\label{eq:ppcaMarginaLikelihood}
+\end{equation}
+
+\end_inset
+
+where the covariance is given by 
+\begin_inset Formula $\mathbf{C}=\mathbf{WW}^{\textrm{T}}+\beta^{-1}\mathbf{I}$
+\end_inset
+
+.
+ This is immediately recognised as a reduced rank representation of the
+ covariance.
+ Since 
+\begin_inset Formula $\mathbf{W}\in\Re^{D\times q}$
+\end_inset
+
+ the matrix 
+\begin_inset Formula $\mathbf{W}\mathbf{W}^{\textrm{T}}\in\Re^{D\times D}$
+\end_inset
+
+ will have rank of at most 
+\begin_inset Formula $q$
+\end_inset
+
+.
+ For finite 
+\begin_inset Formula $\beta$
+\end_inset
+
+ the term 
+\begin_inset Formula $\beta^{-1}\mathbf{I}$
+\end_inset
+
+ then acts as a `regulariser' to ensure that the resulting covariance has
+ full rank and the distribution is thereby properly defined.
+ 
+\end_layout
+
+\begin_layout Standard
+This model was suggested simultaneously by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Roweis:SPCA97,Tipping:probpca99"
+literal "true"
+
+\end_inset
+
+, but 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Tipping:probpca99"
+literal "true"
+
+\end_inset
+
+ also provided the proof that the maximum likelihood solution for 
+\begin_inset Formula $\mathbf{W}$
+\end_inset
+
+ spans the principal sub-space of the data.
+ The proof for the dual probabilistic PCA we introduce in Section
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:GPLVM"
+
+\end_inset
+
+ closely tracks the proof of 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Tipping:probpca99"
+literal "true"
+
+\end_inset
+
+ so we omit the details here, merely giving the result.
+ The optimum value for 
+\begin_inset Formula $\mathbf{W}$
+\end_inset
+
+ is given by 
+\begin_inset Formula 
+\[
+\hat{\mathbf{W}}=\mathbf{U}_{q}^{\prime}\mathbf{L}\mathbf{V}^{\textrm{T}}
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $\mathbf{U}_{q}^{\prime}$
+\end_inset
+
+ are the 
+\begin_inset Formula $q$
+\end_inset
+
+ eigenvectors of the covariance matrix 
+\begin_inset Formula $N^{-1}\mathbf{Y}^{\textrm{T}}\mathbf{Y}$
+\end_inset
+
+ associated with the 
+\begin_inset Formula $q$
+\end_inset
+
+ largest eigenvalues, 
+\begin_inset Formula $\left\{ \lambda_{i}\right\} _{i=1}^{q}$
+\end_inset
+
+ which may be obtained by solving
+\begin_inset Formula 
+\begin{equation}
+N^{-1}\mathbf{Y}^{\textrm{T}}\mathbf{YU}^{\prime}=\mathbf{U}^{\prime}\Lambda.\label{eq:ppcaEigenValueProblem}
+\end{equation}
+
+\end_inset
+
+ The matrix 
+\begin_inset Formula $\mathbf{L}$
+\end_inset
+
+ is diagonal and its 
+\begin_inset Formula $i$
+\end_inset
+
+th diagonal element is given by 
+\begin_inset Formula $l_{i}=\left(\lambda_{i}-\beta^{-1}\right)^{\frac{1}{2}}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+The principal components of a data set are the eigenvectors of the covariance
+ matrix, and the principal sub-space is the space spanned by those eigenvectors.
+ We therefore see that the solution for probabilistic PCA spans the 
+\begin_inset Formula $q$
+\end_inset
+
+-dimensional principal sub-space of the data.
+ 
+\end_layout
+
+\begin_layout Standard
+We will revisit probabilistic principal component analysis in Section
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:GPLVM"
+
+\end_inset
+
+ when we discuss the Gaussian process latent variable model.
+ First we will briefly review Gaussian processes.
+\end_layout
+
+\begin_layout Section
+Gaussian Processes
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:GPs"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Gaussian processes 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Ohagan:curve78,Ohagan:numerical92,Williams:Gaussian96,Williams:prediction98,MacKay:gpintroduction98,Rasmussen:book06"
+literal "true"
+
+\end_inset
+
+ are probability distributions over functions.
+ We can combine a Gaussian process prior with a likelihood (or noise model)
+ to obtain a posterior over functions.
+ If the likelihood is also Gaussian the form of the posterior will also
+ be a Gaussian process.
+ In practice the likelihood is often non-Gaussian but even in this case
+ we typically approximate the posterior process with a Gaussian process.
+\end_layout
+
+\begin_layout Subsection
+A Prior Over Functions
+\end_layout
+
+\begin_layout Standard
+A distribution over functions is seemingly non-sensical as functions are
+ infinite dimensional objects.
+ However, let us proceed by considering a finite Gaussian distribution over
+ some values instantiated from a function 
+\begin_inset Formula $\mathbf{f}=\left\{ f_{n}\right\} _{n=1}^{N}\in\Re^{N\times1}$
+\end_inset
+
+.
+ If we assume that these values are drawn from a Gaussian distribution with
+ mean zero and covariance 
+\begin_inset Formula $\mathbf{K}$
+\end_inset
+
+, then we can write
+\begin_inset Formula 
+\begin{eqnarray*}
+p\left(\mathbf{f}|\mathbf{K}\right) & = & N\left(\mathbf{f}|\mathbf{0},\mathbf{K}\right)\\
+ & = & \frac{1}{\left(2\pi\right)^{\frac{N}{2}}\left|\mathbf{K}\right|^{\frac{1}{2}}}\exp\left(-\frac{1}{2}\mathbf{f}\mathbf{K}^{-1}\mathbf{f}\right).
+\end{eqnarray*}
+
+\end_inset
+
+To illustrate the form of this function we now consider a particular covariance
+ matrix.
+ We will take 
+\emph on
+one sample
+\emph default
+ from a Gaussian with this covariance matrix.
+ Within this single sample there will be 
+\begin_inset Formula $N=25$
+\end_inset
+
+ instantiations.
+ 
+\end_layout
+
+\begin_layout Standard
+The covariance matrix we used is shown as a greyscale image in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:demGPSample"
+
+\end_inset
+
+(b).
+ Note that the covariance function shows correlation between points 
+\begin_inset Formula $f_{m}$
+\end_inset
+
+ and 
+\begin_inset Formula $f_{n}$
+\end_inset
+
+ if 
+\begin_inset Formula $n$
+\end_inset
+
+ is near to 
+\begin_inset Formula $m$
+\end_inset
+
+.
+ There is less correlation if 
+\begin_inset Formula $n$
+\end_inset
+
+ is distant from 
+\begin_inset Formula $m$
+\end_inset
+
+.
+ The sample from the Gaussian is plotted in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:demGPSample"
+
+\end_inset
+
+(a).
+ Note that points that have nearby indices have similar 
+\begin_inset Formula $f_{n}$
+\end_inset
+
+ .
+ If the plot is seen as a function of 
+\begin_inset Formula $n$
+\end_inset
+
+ the function appears smooth.
+ This smoothness comes from the fact that nearby points are correlated in
+ the covariance.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/gpSample.pdf
+	lyxscale 50
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/gpCovariance.pdf
+	lyxscale 50
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+In (a) we show 25 instantiations of a function, 
+\begin_inset Formula $f_{n}$
+\end_inset
+
+, as sampled from a zero mean Gaussian with the covariance matrix given
+ in (b).
+ In (b) we show the covariance matrix as a greyscale plot.
+ Each element square in the plot gives the covariance between two points
+ of the function 
+\begin_inset Formula $f_{n}$
+\end_inset
+
+ and 
+\begin_inset Formula $f_{m}$
+\end_inset
+
+.
+ The plots can be recreated with the command 
+\family typewriter
+demGPSample
+\family default
+.
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:demGPSample"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In practice the covariance will not be a function of the indices, but of
+ an input space 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+.
+ However, each point in that input space, 
+\begin_inset Formula $\mathbf{x}_{n}$
+\end_inset
+
+, will also be indexed by 
+\begin_inset Formula $n$
+\end_inset
+
+ so for the moment it is convenient to ignore this relationship.
+\end_layout
+
+\begin_layout Standard
+To see how it is possible to make predictions given the covariance matrix,
+ let us first consider the covariance of two points.
+ Marginalising the remaining points leads to a two dimensional Gaussian
+ whose covariance is made up of the rows and columns from the original covarianc
+e associated with those points.
+ This allows us to plot a contour and visualise the joint probability over
+ these points.
+ First we take the points indexed as 
+\begin_inset Formula $f_{1}$
+\end_inset
+
+ and 
+\begin_inset Formula $f_{2}$
+\end_inset
+
+.
+ A contour of the joint probability distribution over this space is shown
+ in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:joint12"
+
+\end_inset
+
+(a).
+ Also, in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:joint12"
+
+\end_inset
+
+(c) we visualise the conditional distribution for 
+\begin_inset Formula $p\left(f_{2}|f_{1},\mathbf{K}\right)$
+\end_inset
+
+.
+ This can be viewed as the predictive distribution for 
+\begin_inset Formula $f_{2}$
+\end_inset
+
+ having observed 
+\begin_inset Formula $f_{1}$
+\end_inset
+
+.
+ The strong correlation induced by the covariance, 
+\begin_inset Formula $\mathbf{K}$
+\end_inset
+
+, means that the conditional distribution for 
+\begin_inset Formula $f_{2}$
+\end_inset
+
+ has a mean that is close to 
+\begin_inset Formula $f_{1}$
+\end_inset
+
+.
+ 
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demGPCov2D1_2_1.pdf
+	lyxscale 30
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demGPCov2D1_2_2.pdf
+	lyxscale 30
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demGPCov2D1_2_3.pdf
+	lyxscale 30
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Joint distribution between the values of 
+\begin_inset Formula $f_{1}$
+\end_inset
+
+ and 
+\begin_inset Formula $f_{2}$
+\end_inset
+
+: (a) shows the a single contour (one standard deviation from the mean)
+ of the Gaussian distribution; (b) shows the instantiated value of 
+\begin_inset Formula $f_{1}$
+\end_inset
+
+ as a line dashed in the plot and (c) shows the conditional distribution
+ of 
+\begin_inset Formula $p\left(f_{2}|f_{1}\right)$
+\end_inset
+
+ as a dotted line rotated to be a function of the 
+\begin_inset Formula $f_{2}$
+\end_inset
+
+-axis of the plot.
+ These plots can be recreated through the script 
+\family typewriter
+demGPCov2D([1 2])
+\family default
+.
+ The portion of the covariance function as computed between these two points
+ is given by 
+\begin_inset Formula $\mathbf{K}_{12}=\left[\begin{array}{cc}
+1 & 0.966\\
+0.966 & 1
+\end{array}\right]$
+\end_inset
+
+.
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:joint12"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A similar plot is shown in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:joint15"
+
+\end_inset
+
+ but this time for the joint distribution between 
+\begin_inset Formula $f_{1}$
+\end_inset
+
+ and 
+\begin_inset Formula $f_{5}$
+\end_inset
+
+.
+ The correlation induced by the covariance function is now much weaker,
+ the conditional distribution for 
+\begin_inset Formula $f_{5}$
+\end_inset
+
+ has a mean much closer to zero than that for 
+\begin_inset Formula $f_{1}$
+\end_inset
+
+ had.
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demGPCov2D1_5_1.pdf
+	lyxscale 30
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demGPCov2D1_5_2.pdf
+	lyxscale 30
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demGPCov2D1_5_3.pdf
+	lyxscale 30
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Joint distribution between the values of 
+\begin_inset Formula $f_{1}$
+\end_inset
+
+ and 
+\begin_inset Formula $f_{5}$
+\end_inset
+
+: (a) shows the a single contour (one standard deviation from the mean)
+ of the Gaussian distribution; (b) shows the instantiated value of 
+\begin_inset Formula $f_{1}$
+\end_inset
+
+ as a line dashed in the plot and (c) shows the conditional distribution
+ of 
+\begin_inset Formula $p\left(f_{5}|f_{1}\right)$
+\end_inset
+
+ as a dotted line rotated to be a function of the 
+\begin_inset Formula $f_{5}$
+\end_inset
+
+-axis of the plot.
+ These plots can be recreated through the script 
+\family typewriter
+demGPCov2D([1 5])
+\family default
+.
+ The portion of the covariance function as computed by these two points
+ is given by 
+\begin_inset Formula $\mathbf{K}_{15}=\left[\begin{array}{cc}
+1 & 0.574\\
+0.574 & 1
+\end{array}\right]$
+\end_inset
+
+.
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:joint15"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The obvious question is, where does this covariance matrix come from? In
+ this case the covariance matrix is built using the inputs to the function
+ 
+\begin_inset Formula $\mathbf{x}_{n}$
+\end_inset
+
+.
+ The covariance shown in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:demGPSample"
+
+\end_inset
+
+(b) is based on Euclidean distance between the points.
+ The input points used were one dimensional and equally spaced along a line
+ between -1 and 1.
+ The covariance between points 
+\begin_inset Formula $m$
+\end_inset
+
+ and 
+\begin_inset Formula $n$
+\end_inset
+
+ was given by
+\begin_inset Formula 
+\begin{equation}
+k\left(\mathbf{x}_{m},\mathbf{x}_{n}\right)=\exp\left(-\frac{\gamma}{2}\left(\mathbf{x}_{m}-\mathbf{x}_{n}\right)^{\textrm{T}}\left(\mathbf{x}_{m}-\mathbf{x}_{n}\right)\right),\label{eq:rbfOne}
+\end{equation}
+
+\end_inset
+
+where the inverse width parameter 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ was taken to be 10.
+ Note that if 
+\begin_inset Formula $m=n$
+\end_inset
+
+ then the variance of the point is 1.
+ This is why the furthest extent of the contour at one standard deviation
+ in each of Figures
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:joint12"
+
+\end_inset
+
+
+\begin_inset space ~
+\end_inset
+
+and
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:joint15"
+
+\end_inset
+
+ is also one.
+ This covariance function is known as the radial basis function (RBF), squared
+ exponential, or Gaussian covariance function.
+ We note that it shares the same form as the RBF kernel used in support
+ vector machines 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Scholkopf:learning01"
+literal "true"
+
+\end_inset
+
+.
+ In fact the class of valid covariance functions is the same as the class
+ of Mercer kernels.
+ We will therefore use the terms covariance function and kernel interchangeably
+ in what follows.
+\end_layout
+
+\begin_layout Standard
+The covariance function provides the joint distribution over the instantiations
+ of the functions.
+ The conditional distribution provides predictions for as yet unseen locations
+ given points at known locations.
+ This is analogous to a training set/test set situation in machine learning.
+ The predictions are locations are on the left hand side of the conditional,
+ the training data is on the right hand side of the conditional, if we denote
+ instantiations from the training set as 
+\begin_inset Formula $\mathbf{f}$
+\end_inset
+
+ and positions in the test set as 
+\begin_inset Formula $\mathbf{f}_{*}$
+\end_inset
+
+ we can denote this conditional as 
+\begin_inset Formula $p\left(\mathbf{f}_{*}|\mathbf{f}\right)$
+\end_inset
+
+.
+ Since the joint distribution is Gaussian, we known this conditional distributio
+n must also be Gaussian.
+ To find the conditional distribution we make use of a partitioned version
+ of the kernel matrix,
+\begin_inset Formula 
+\[
+\mathbf{K}=\left[\begin{array}{cc}
+\mathbf{K}_{\mathbf{f},\mathbf{f}} & \mathbf{K}_{\mathbf{f},*}\\
+\mathbf{K}_{*,\mathbf{f}} & \mathbf{K}_{*,*}
+\end{array}\right]
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $\mathbf{K}_{\mathbf{f},\mathbf{f}}$
+\end_inset
+
+ is the covariance matrix for the training data points, 
+\begin_inset Formula $\mathbf{f}$
+\end_inset
+
+, the sub-matrix 
+\begin_inset Formula $\mathbf{K}_{*,*}$
+\end_inset
+
+ is the covariance matrix for the test data points, 
+\begin_inset Formula $\mathbf{f}_{*}$
+\end_inset
+
+, and the sub-matrix 
+\begin_inset Formula $\mathbf{K}_{*,\mathbf{f}}=\mathbf{K}_{\mathbf{f},*}^{\textrm{T}}$
+\end_inset
+
+ is the cross correlations between training and test data.
+ We are now in a position to write down the joint distribution of the data
+ via the partition inverse,
+\begin_inset Formula 
+\[
+\mathbf{K}^{-1}=\left[\begin{array}{cc}
+\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}+\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{K}_{\mathbf{f},*}\Sigma^{-1}\mathbf{K}_{*,\mathbf{f}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1} & -\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{K}_{\mathbf{f},*}\Sigma^{-1}\\
+-\Sigma^{-1}\mathbf{K}_{*,\mathbf{f}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1} & \mathbf{\Sigma^{-1}}
+\end{array}\right]
+\]
+
+\end_inset
+
+where
+\begin_inset Formula 
+\[
+\Sigma=\mathbf{K}_{*,*}-\mathbf{K}_{*,\mathbf{f}}\mathbf{K_{\mathbf{f},\mathbf{f}}^{-1}}\mathbf{K}_{\mathbf{f},*}.
+\]
+
+\end_inset
+
+Through the partitioned inverse we can re-express the joint distribution,
+ for convenience we write it below as the logarithm of the joint distribution,
+\begin_inset Formula 
+\begin{eqnarray*}
+\log p\left(\mathbf{f},\mathbf{f}_{*}\right) & = & -\frac{1}{2}\mathbf{f}^{\textrm{T}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{f}-\frac{1}{2}\mathbf{f}^{\textrm{T}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{K}_{\mathbf{f},*}\Sigma^{-1}\mathbf{K}_{*,\mathbf{f}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{f}\\
+ &  & +\mathbf{f}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{K}_{\mathbf{f},*}\Sigma^{-1}\mathbf{f}_{*}-\frac{1}{2}\mathbf{f}_{*}^{\textrm{T}}\Sigma^{-1}\mathbf{f}_{*}+\textrm{const}_{1}
+\end{eqnarray*}
+
+\end_inset
+
+where the constant term contains portions that are not dependent on 
+\begin_inset Formula $\mathbf{f}$
+\end_inset
+
+ or 
+\begin_inset Formula $\mathbf{f}_{*}$
+\end_inset
+
+.
+ Strictly speaking, the joint distribution is also conditioned on the parameters
+ of the covariance function, the training input locations, 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+, and the test input locations, 
+\begin_inset Formula $\mathbf{X}_{*}$
+\end_inset
+
+.
+ This dependence occurs through the kernel functions.
+ However we are dropping this dependence in what follows to avoid cluttering
+ the notation.
+ 
+\end_layout
+
+\begin_layout Standard
+The conditional distribution is found by dividing joint distribution by
+ the prior distribution on 
+\begin_inset Formula $\mathbf{f}$
+\end_inset
+
+, 
+\begin_inset Formula $p\left(\mathbf{f}\right)=N\left(\mathbf{f}|\mathbf{0},\mathbf{K}_{\mathbf{f},\mathbf{f}}\right)$
+\end_inset
+
+.
+ In log space this is equivalent to subtraction of 
+\begin_inset Formula 
+\[
+\log p\left(\mathbf{f}\right)=\mathbf{-}\frac{1}{2}\mathbf{f}^{\textrm{T}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{f}+\textrm{const}_{2}
+\]
+
+\end_inset
+
+giving 
+\begin_inset Formula 
+\begin{eqnarray}
+\log p\left(\mathbf{f}_{*}|\mathbf{f}\right) & = & \log p\left(\mathbf{f}_{*},\mathbf{f}\right)-\log p\left(\mathbf{f}\right)\nonumber \\
+ & = & -\frac{1}{2}\mathbf{f}^{\textrm{T}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{K}_{\mathbf{f},*}\Sigma^{-1}\mathbf{K}_{*,\mathbf{f}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{f}+\mathbf{f}^{\textrm{T}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{K}_{\mathbf{f},*}\Sigma\mathbf{f}_{*}\nonumber \\
+ &  & -\frac{1}{2}\mathbf{f}_{*}^{\textrm{T}}\Sigma^{-1}\mathbf{f}_{*}+\textrm{const}_{1}-\textrm{const}_{2}\label{eq:thirdLineConditional}\\
+ & = & -\frac{1}{2}\left(\mathbf{f}_{*}-\mathbf{K}_{*,\mathbf{f}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{f}\right)^{\textrm{T}}\mathbf{\Sigma^{-1}}\left(\mathbf{f}_{*}-\mathbf{K}_{*,\mathbf{f}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{f}\right)\nonumber \\
+ &  & +\textrm{const}_{3}\label{eq:fifthLineConditional}\\
+ & = & \log N\left(\mathbf{f}_{*}|\mathbf{\bar{\mathbf{f}}}_{*},\Sigma\right).\label{eq:gpConditional}
+\end{eqnarray}
+
+\end_inset
+
+where 
+\begin_inset Formula $\bar{\mathbf{f}}=\mathbf{K}_{*,\mathbf{f}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{f}$
+\end_inset
+
+, 
+\begin_inset Formula $\textrm{const}_{3}=\textrm{const}_{1}-\textrm{const}_{2}$
+\end_inset
+
+ and (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:fifthLineConditional"
+
+\end_inset
+
+) is derived from (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:thirdLineConditional"
+
+\end_inset
+
+) by completing the square.
+ 
+\end_layout
+
+\begin_layout Standard
+So we can see that if we observe points from the function, 
+\series bold
+
+\begin_inset Formula $\mathbf{f}$
+\end_inset
+
+
+\series default
+, directly for a given set of training data 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+ then we can predict the locations of functions at as yet unseen locations
+ whose inputs are given by 
+\begin_inset Formula $\mathbf{X}_{*}$
+\end_inset
+
+.
+ The resulting distribution is also a Gaussian process, but with a mean
+ given by 
+\begin_inset Formula $\bar{\mathbf{f}}$
+\end_inset
+
+ and a covariance given by 
+\begin_inset Formula $\Sigma$
+\end_inset
+
+.
+ In general though, we will not make direct observations of the function,
+ our observations are more likely to be corrupted by noise.
+ We therefore also define a noise model 
+\begin_inset Formula $p\left(\mathbf{y}|\mathbf{f}\right)$
+\end_inset
+
+ which relates our actual observations, 
+\begin_inset Formula $\mathbf{y}$
+\end_inset
+
+, to the function 
+\begin_inset Formula $\mathbf{f}$
+\end_inset
+
+ (see Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:gpGraph"
+
+\end_inset
+
+).
+ A standard noise model for regression is independent Gaussian random noise.
+ In this case we can write the noise model as
+\begin_inset Formula 
+\begin{equation}
+p\left(\mathbf{y}|\mathbf{f}\right)=\prod_{n=1}^{N}p\left(y_{n}|f_{n}\right)=\prod_{n=1}^{N}N\left(y_{n}|f_{n},\beta^{-1}\right),\label{eq:gpGaussNoise}
+\end{equation}
+
+\end_inset
+
+
+\emph on
+i.e
+\emph default
+.
+ we are assuming that the function becomes corrupted by the addition of
+ independent Gaussian noise with a precision of 
+\begin_inset Formula $\beta^{-1}$
+\end_inset
+
+ at each observation.
+ 
+\begin_inset Note Note
+status collapsed
+
+\begin_layout Plain Layout
+Now, if we wish to make inferences about the function at other locations
+ we can do so through Bayes' rule,
+\begin_inset Formula 
+\[
+p\left(\mathbf{f}_{*}|\mathbf{y}\right)=\int p\left(\mathbf{f}_{*}|\mathbf{f}\right)p\left(\mathbf{f}|\mathbf{y}\right)d\mathbf{f}
+\]
+
+\end_inset
+
+for which we first need the posterior over 
+\begin_inset Formula $\mathbf{f}$
+\end_inset
+
+ given the observations,
+\begin_inset Formula 
+\[
+p\left(\mathbf{f}|\mathbf{y}\right)\propto p\left(\mathbf{y}|\mathbf{f}\right)p\left(\mathbf{f}\right)
+\]
+
+\end_inset
+
+This can be computed as
+\begin_inset Formula 
+\begin{eqnarray*}
+\log p\left(\mathbf{f}|\mathbf{y}\right) & = & \log p\left(\mathbf{y}|\mathbf{f}\right)+\log p\left(\mathbf{f}\right)\\
+ & = & -\frac{\beta}{2}\left(\mathbf{y}-\mathbf{f}\right)^{\textrm{T}}\left(\mathbf{y}-\mathbf{f}\right)-\frac{1}{2}\mathbf{f}^{\textrm{T}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{f}+\textrm{const}_{4}\\
+ & = & -\frac{1}{2}\mathbf{f}^{\textrm{T}}\left(\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}+\beta\mathbf{I}\right)\mathbf{f}+\beta\mathbf{y}^{\textrm{T}}\mathbf{f}+\textrm{const}_{5}\\
+ & = & -\left(\mathbf{f}-\mathbf{A}^{-1}\beta\mathbf{y}\right)^{\textrm{T}}\mathbf{A}\left(\mathbf{f}-\mathbf{A}^{-1}\beta\mathbf{y}\right)+\textrm{const _{6}}\\
+ & = & \log N\left(\mathbf{f}|\mathbf{A}^{-1}\beta\mathbf{y},\mathbf{A}^{-1}\right),
+\end{eqnarray*}
+
+\end_inset
+
+where 
+\begin_inset Formula $\mathbf{A}=\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}+\beta\mathbf{I}$
+\end_inset
+
+.
+ So we see that the posterior process for 
+\begin_inset Formula $\mathbf{f}$
+\end_inset
+
+ is a Gaussian process with mean 
+\begin_inset Formula $\mathbf{A}^{-1}\beta\mathbf{y}$
+\end_inset
+
+ and covariance 
+\begin_inset Formula $\mathbf{A}^{-1}$
+\end_inset
+
+.
+ This can be combined with the conditional distribution () to give
+\begin_inset Formula 
+\begin{eqnarray*}
+p\left(\mathbf{f}_{*}|\mathbf{y}\right) & = & \int p\left(\mathbf{f}_{*}|\mathbf{f}\right)p\left(\mathbf{f}|\mathbf{y}\right)d\mathbf{f}\\
+ & = & \int N\left(\mathbf{f}_{*}|\mathbf{K}_{\mathbf{f},*}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{f},\Sigma\right)N\left(\mathbf{f}|\mathbf{A}^{-1}\beta\mathbf{y},\mathbf{A}^{-1}\right)d\mathbf{f}\\
+ & \propto & \int\exp\left(-\frac{1}{2}\left(\mathbf{f}_{*}-\mathbf{K}_{*,\mathbf{f}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{f}\right)^{\textrm{T}}\Sigma^{-1}\left(\mathbf{f}_{*}-\mathbf{K}_{*,\mathbf{f}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{f}\right)-\frac{1}{2}\left(\mathbf{f}-\mathbf{A}^{-1}\beta\mathbf{y}\right)^{\textrm{T}}\mathbf{A}\left(\mathbf{f}-\mathbf{A}^{-1}\beta\mathbf{y}\right)\right)d\mathbf{f}\\
+ & \propto & \int\exp\left(-\frac{1}{2}\mathbf{f}^{\textrm{T}}\left(\mathbf{A}+\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{K}_{\mathbf{f},*}\Sigma^{-1}\mathbf{K}_{*,\mathbf{f}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\right)\mathbf{f}+\left(\mathbf{f}_{*}^{\textrm{T}}\Sigma^{-1}\mathbf{K}_{*,\mathbf{f}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}+\beta\mathbf{y}^{\textrm{T}}\right)\mathbf{f}-\frac{1}{2}\mathbf{f}_{*}^{\textrm{T}}\Sigma^{-1}\mathbf{f}_{*}-\frac{\beta^{2}}{2}\mathbf{y}^{\textrm{T}}\mathbf{A}^{-1}\mathbf{y}\right)d\mathbf{f}\\
+ & \propto & \exp\left(-\frac{1}{2}\mathbf{f}_{*}^{\textrm{T}}\Sigma^{-1}\mathbf{f}_{*}+\left(\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{K}_{\mathbf{f},*}\Sigma^{-1}\mathbf{f}_{*}+\beta\mathbf{y}\right)\left(\mathbf{A}+\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{K}_{\mathbf{f},*}\Sigma^{-1}\mathbf{K}_{*,\mathbf{f}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\right)\left(\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{K}_{\mathbf{f},*}\Sigma^{-1}\mathbf{f}_{*}+\beta\mathbf{y}\right)\right)\\
+ & \propto & \exp\left(-\frac{1}{2}\mathbf{f}_{*}^{\textrm{T}}\left(\Sigma^{-1}-\Sigma^{-1}\mathbf{K}_{*,\mathbf{f}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\left(\mathbf{A}+\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{K}_{\mathbf{f},*}\Sigma^{-1}\mathbf{K}_{*,\mathbf{f}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\right)\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{K}_{\mathbf{f},*}\Sigma^{-1}\right)\mathbf{f}_{*}\right)
+\end{eqnarray*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+for which we require the marginal likelihood, 
+\begin_inset Formula $p\left(\mathbf{y}\right)$
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+Given the Gaussian noise model in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:gpGaussNoise"
+
+\end_inset
+
+) computation of the marginal likelihood, 
+\begin_inset Formula 
+\[
+p\left(\mathbf{y}\right)=\int p\left(\mathbf{y}|\mathbf{f}\right)p\left(\mathbf{f}\right)d\mathbf{f},
+\]
+
+\end_inset
+
+is straightforward,
+\begin_inset Formula 
+\begin{eqnarray}
+p\left(\mathbf{y}\right) & \propto & \int\exp\left(-\frac{\beta}{2}\left(\mathbf{y}-\mathbf{f}\right)^{\textrm{T}}\left(\mathbf{y}-\mathbf{f}\right)-\frac{1}{2}\mathbf{f}^{\textrm{T}}\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}\mathbf{f}\right)d\mathbf{f}\nonumber \\
+ & \propto & \int\exp\left(-\frac{\beta}{2}\mathbf{y}^{\textrm{T}}\mathbf{y}-\frac{1}{2}\mathbf{f}^{\textrm{T}}\left(\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}+\beta\mathbf{I}\right)\mathbf{f}+\beta\mathbf{y}^{\textrm{T}}\mathbf{f}\right)d\mathbf{f}\label{eq:marginalSecondLine}\\
+ & \propto & \exp\left(-\frac{1}{2}\mathbf{y}^{\textrm{T}}\left(\mathbf{\beta I}-\beta^{2}\left(\mathbf{K}_{\mathbf{f},\mathbf{f}}^{-1}+\beta\mathbf{I}\right)^{-1}\right)\mathbf{y}\right)\label{eq:marginalThirdLine}\\
+ & \propto & \exp\left(-\frac{1}{2}\mathbf{y}^{\textrm{T}}\left(\mathbf{K}_{\mathbf{f},\mathbf{f}}+\beta^{-1}\mathbf{I}\right)^{-1}\mathbf{y}\right)\label{eq:marginalFourthLine}\\
+ & = & N\left(\mathbf{y}|\mathbf{0},\mathbf{K}_{\mathbf{f},\mathbf{f}}+\beta^{-1}\mathbf{I}\right),\label{eq:gaussianMarginal}
+\end{eqnarray}
+
+\end_inset
+
+where the integral in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:marginalSecondLine"
+
+\end_inset
+
+) can again be undertaken through standard Gaussian results 
+\begin_inset CommandInset citation
+LatexCommand citep
+after "Appendix B"
+key "Bishop:book95"
+literal "true"
+
+\end_inset
+
+ and we move from (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:marginalThirdLine"
+
+\end_inset
+
+) to (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:marginalFourthLine"
+
+\end_inset
+
+) through inspection by recognising the form of the matrix inversion lemma
+ in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:marginalThirdLine"
+
+\end_inset
+
+).
+ The resulting marginal likelihood is then a Gaussian process on 
+\begin_inset Formula $\mathbf{y}$
+\end_inset
+
+ with a modified covariance function of the form 
+\begin_inset Formula $\mathbf{\hat{K}}_{\mathbf{y},\mathbf{y}}=\mathbf{K}_{\mathbf{f},\mathbf{f}}+\beta^{-1}\mathbf{I}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsection
+Summing Covariance Functions
+\end_layout
+
+\begin_layout Standard
+As an aside we note that the form of 
+\begin_inset Formula $p\mathbf{\left(\mathbf{y}|\mathbf{f}\right)}$
+\end_inset
+
+ can also be seen as a Gaussian process over 
+\begin_inset Formula $\mathbf{y}$
+\end_inset
+
+ with a given mean 
+\begin_inset Formula $\mathbf{f}$
+\end_inset
+
+ and a covariance function 
+\begin_inset Formula $\mathbf{K}_{\mathbf{y},\mathbf{y}}=\beta^{-1}\mathbf{I}$
+\end_inset
+
+.
+ The particular form of this covariance function is that all points are
+ uncorrelated, 
+\emph on
+i.e.
+
+\emph default
+ the process is just white noise.
+ However regardless of the form of the covariance function the result of
+ the marginalisation above would remain the same, 
+\begin_inset Formula 
+\[
+N\left(\mathbf{y}|\mathbf{0},\mathbf{K}_{\mathbf{f},\mathbf{f}}+\mathbf{K}_{\mathbf{y},\mathbf{y}}\right)=\int N\left(\mathbf{y}|\mathbf{f},\mathbf{K}_{\mathbf{y},\mathbf{y}}\right)N\left(\mathbf{f}|\mathbf{0},\mathbf{K}_{\mathbf{f},\mathbf{f}}\right)d\mathbf{f},
+\]
+
+\end_inset
+
+so we see that a new covariance function can be generated by adding two
+ different covariance functions together.
+ This has the interpretation of a hierarchical Gaussian process, where the
+ mean of each process is itself treated as a Gaussian process.
+ 
+\end_layout
+
+\begin_layout Subsection
+Parameters of the Covariance Function
+\end_layout
+
+\begin_layout Standard
+The covariance function we described in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:rbfOne"
+
+\end_inset
+
+) has a parameter: the inverse width.
+ We also saw from the contour plots of the correlation between the points,
+ that the maximum standard deviation was unity.
+ If we wish to have a covariance function that existed on a non unit scale
+ we need to introduce a further parameter, 
+\begin_inset Formula $\alpha$
+\end_inset
+
+,
+\begin_inset Formula 
+\begin{equation}
+k\left(\mathbf{x}_{m},\mathbf{x}_{n}\right)=\alpha\exp\left(-\frac{\gamma}{2}\left(\mathbf{x}_{m}-\mathbf{x}_{n}\right)^{\textrm{T}}\left(\mathbf{x}_{m}-\mathbf{x}_{n}\right)\right),\label{eq:rbfTwo}
+\end{equation}
+
+\end_inset
+
+which controls the variance of the function.
+ Note that this parameter 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ is analogous to 
+\begin_inset Formula $\beta^{-1}$
+\end_inset
+
+ (which controls the variance of the white noise process).
+ Here 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ is controlling the variance of the function generated by the RBF kernel.
+ In the context of the marginal distribution over 
+\begin_inset Formula $\mathbf{y}$
+\end_inset
+
+,
+\begin_inset Formula 
+\begin{equation}
+p\left(\mathbf{y}|\alpha,\beta,\gamma\right)=N\left(\mathbf{y}|\mathbf{0},\mathbf{K}_{\mathbf{f},\mathbf{f}}+\mathbf{\beta}^{-1}\mathbf{I}\right),\label{eq:gpMarginal2}
+\end{equation}
+
+\end_inset
+
+ where we have made explicit the dependence of the marginal likelihood on
+ 
+\begin_inset Formula $\alpha$
+\end_inset
+
+, 
+\begin_inset Formula $\beta$
+\end_inset
+
+ and 
+\begin_inset Formula $\gamma$
+\end_inset
+
+.
+ This dependence occurs through 
+\begin_inset Formula $\mathbf{K}_{\mathbf{f},\mathbf{f}}$
+\end_inset
+
+, the elements of which are given by (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:rbfTwo"
+
+\end_inset
+
+), we can view 
+\begin_inset Formula $\sqrt{\alpha\beta}$
+\end_inset
+
+ as a signal to noise ratio.
+ The standard deviation of the signal is 
+\begin_inset Formula $\sqrt{\alpha}$
+\end_inset
+
+ and the standard deviation of the noise is 
+\begin_inset Formula $\sqrt{\beta^{-1}}$
+\end_inset
+
+.
+ In many kernel methods, these parameters must be selected through cross
+ validation.
+ An advantage of the Gaussian process point of view is that they can be
+ optimised by maximisation of the marginal likelihood 
+\begin_inset Formula $p\left(\mathbf{y}|\alpha,\beta,\gamma\right)$
+\end_inset
+
+.
+ This is known as empirical Bayes or type II maximum likelihood.
+ Priors can also be placed over these parameters and sampling used to estimate
+ their posteriors (see 
+\emph on
+e.g.
+\emph default
+
+\begin_inset CommandInset citation
+LatexCommand citealt
+key "Williams:Gaussian96"
+literal "true"
+
+\end_inset
+
+).
+ 
+\end_layout
+
+\begin_layout Subsection
+Different Covariance Functions
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:covarianceFunctions"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+By changing the characteristics of the covariance function we can sample
+ different functions from the prior.
+ For example, setting each element of the kernel matrix to an inner product
+ between the points, 
+\begin_inset Formula 
+\[
+k\left(\mathbf{x}_{m},\mathbf{x}_{n}\right)=\alpha\mathbf{x}_{m}^{\textrm{T}}\mathbf{x}_{n},
+\]
+
+\end_inset
+
+produces functions that are linear.
+ Note that this kernel function can also be written as
+\begin_inset Formula 
+\[
+\mathbf{K}_{\mathbf{f},\mathbf{f}}=\mathbf{X}\mathbf{X}^{\textrm{T}}.
+\]
+
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Williams:infinite96"
+literal "true"
+
+\end_inset
+
+ showed that a multi-layer perceptron with infinite hidden nodes has a covarianc
+e function of the form
+\begin_inset Formula 
+\[
+k\left(\mathbf{x}_{m},\mathbf{x}_{n}\right)=\alpha\textrm{sin}^{-1}\left(\frac{w\mathbf{x}_{m}^{\textrm{T}}\mathbf{x}_{n}+b}{\sqrt{w\mathbf{x}_{m}^{\textrm{T}}\mathbf{x}_{m}+b+1}\sqrt{w\mathbf{x}_{n}^{\textrm{T}}\mathbf{x}_{n}+b+1}}\right),
+\]
+
+\end_inset
+
+where a Gaussian prior over the weights from the input to hidden units is
+ used with a variance 
+\begin_inset Formula $w$
+\end_inset
+
+ and a prior over the locations of the activation functions with variance
+ 
+\begin_inset Formula $b$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Finally a constant offset in the function can be accounted for by adding
+ a kernel function which is constant in value.
+ 
+\begin_inset Formula 
+\[
+k\left(\mathbf{x}_{m},\mathbf{x}_{n}\right)=\alpha,
+\]
+
+\end_inset
+
+we will refer to this as the bias kernel.
+ We show some examples of samples associated with tese covariance functions
+ in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:kernelSamples"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demCovFuncSample1.pdf
+	lyxscale 40
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demCovFuncSample2.pdf
+	lyxscale 40
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demCovFuncSample3.pdf
+	lyxscale 40
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demCovFuncSample4.pdf
+	lyxscale 40
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demCovFuncSample5.pdf
+	lyxscale 40
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demCovFuncSample6.pdf
+	lyxscale 40
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demCovFuncSample7.pdf
+	lyxscale 40
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demCovFuncSample8.pdf
+	lyxscale 40
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Samples from different covariance functions.
+ (a) RBF kernel with 
+\begin_inset Formula $\gamma=10$
+\end_inset
+
+, 
+\begin_inset Formula $\alpha=1$
+\end_inset
+
+, (b) RBF kernel with 
+\begin_inset Formula $\gamma=1$
+\end_inset
+
+, 
+\begin_inset Formula $\alpha=1$
+\end_inset
+
+ (c) RBF kernel with 
+\begin_inset Formula $\gamma=10$
+\end_inset
+
+, 
+\begin_inset Formula $\alpha=4$
+\end_inset
+
+, (d) linear kernel with 
+\begin_inset Formula $\alpha=16$
+\end_inset
+
+, (e) MLP kernel with 
+\begin_inset Formula $\alpha=8$
+\end_inset
+
+, 
+\begin_inset Formula $w=100$
+\end_inset
+
+ and 
+\begin_inset Formula $b=100$
+\end_inset
+
+, (f) MLP kernel with 
+\begin_inset Formula $\alpha=8$
+\end_inset
+
+, 
+\begin_inset Formula $b=0$
+\end_inset
+
+ and 
+\begin_inset Formula $w=100$
+\end_inset
+
+, (g) bias kernel with 
+\begin_inset Formula $\alpha=1$
+\end_inset
+
+ and (h) Summed combination of: RBF kernel, 
+\begin_inset Formula $\alpha=1$
+\end_inset
+
+, 
+\begin_inset Formula $\gamma=10$
+\end_inset
+
+; bias kernel, 
+\begin_inset Formula $\alpha=$
+\end_inset
+
+1; and white noise kernel, 
+\begin_inset Formula $\beta=100$
+\end_inset
+
+.
+ Samples can be recreated with the script 
+\family typewriter
+demCovFuncSample
+\family default
+.
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:kernelSamples"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Consistency
+\end_layout
+
+\begin_layout Standard
+Gaussian processes are consistent in that the posterior predictions at each
+ point remain the same regardless of the number and location of the test
+ points.
+ To see this we first consider an additional set of test points 
+\begin_inset Formula $\mathbf{f}_{+}$
+\end_inset
+
+ which is disjoint from 
+\begin_inset Formula $\mathbf{f}_{*}$
+\end_inset
+
+.
+ The conditional probability of our original test points can be expressed
+ as 
+\begin_inset Formula 
+\[
+p\left(\mathbf{f}_{*}|\mathbf{f}\right)=\int p\left(\mathbf{f}_{*},\mathbf{f}_{+}|\mathbf{f}\right)d\mathbf{f}_{+},
+\]
+
+\end_inset
+
+for the system to be consistent this marginal likelihood must be the same
+ regardless of 
+\begin_inset Formula $\mathbf{f}_{+}$
+\end_inset
+
+.
+ In other words, if we replaced 
+\begin_inset Formula $\mathbf{f}_{+}$
+\end_inset
+
+ with 
+\begin_inset Formula $\hat{\mathbf{f}}_{+}$
+\end_inset
+
+ we would require
+\begin_inset Formula 
+\[
+p\left(\mathbf{f}_{*}|\mathbf{f}\right)=\int p\left(\mathbf{f}_{*},\mathbf{f}_{+}|\mathbf{f}\right)d\mathbf{f}_{+}=\int p\left(\mathbf{f}_{*},\hat{\mathbf{f}}_{+}|\mathbf{f}\right)d\hat{\mathbf{f}}_{+}
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $\hat{\mathbf{f}}_{+}\neq\mathbf{f}_{+}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Summary
+\end_layout
+
+\begin_layout Standard
+We have reviewed some of the salient points of Gaussian processes, in particular
+ we have shown how a Gaussian process arises from the specification of a
+ covariance function.
+ Given a sub-set of observations of a function, and an associated covariance,
+ we can make predictions about the the likely location of the function in
+ regions where we hadn't previously observed data.
+ 
+\end_layout
+
+\begin_layout Standard
+The parameters of the covariance function can be found through maximisation
+ of the marginal likelihood (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:gpMarginal2"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Section
+The GP-LVM
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:GPLVM"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The standard probabilistic interpretation of PCA we reviewed in Section
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:PPCA"
+
+\end_inset
+
+ combines a Gaussian likelihood, 
+\begin_inset Formula 
+\[
+p\left(\mathbf{Y}|\mathbf{W},\mathbf{X},\beta\right)=\prod_{n=1}^{N}N\left(\mathbf{y}_{n}|\mathbf{Wx}_{n},\beta^{-1}\mathbf{I}\right)
+\]
+
+\end_inset
+
+with a Gaussian prior on the latent variables, 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+.
+ The GP-LVM takes a different perspective on the model.
+ Rather than marginalising the latent variables, we seek to marginalise
+ the mapping.
+ Graphically, we can depict the two different approaches as shown in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:probabilisticPCAGraph"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/ppcaGraph.pdf
+	width 35text%
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename ../diagrams/gplvmGraph.pdf
+	width 35text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Graphical representation of (a) the standard probabilistic PCA model and
+ (b) its dual representation which also leads to a probabilistic interpretation
+ of PCA.
+ The nodes are shaded to represent different treatments.
+ 
+\emph on
+Black
+\emph default
+ shaded nodes are optimised, 
+\emph on
+white
+\emph default
+ shaded nodes are marginalised and 
+\emph on
+grey
+\emph default
+ shaded nodes are observed variables.
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:probabilisticPCAGraph"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+As we shall see this approach will lead to a dual representation of probabilisti
+c PCA.
+ The required marginalisation now takes the form
+\begin_inset Formula 
+\[
+p\left(\mathbf{Y}|\mathbf{X},\beta\right)=\int\prod_{n=1}^{N}p\left(\mathbf{y}_{n}|\mathbf{x}_{n},\mathbf{W},\beta\right)p\left(\mathbf{W}\right)d\mathbf{W}.
+\]
+
+\end_inset
+
+By specifying a Gaussian prior distribution over the parameters of the mapping,
+ 
+\begin_inset Formula 
+\[
+p\left(\mathbf{W}\right)=\prod_{i}N\left(\mathbf{w}_{i}|\mathbf{0},\mathbf{I}\right)
+\]
+
+\end_inset
+
+ where 
+\begin_inset Formula $\mathbf{w}_{i}$
+\end_inset
+
+ is the 
+\begin_inset Formula $i$
+\end_inset
+
+th row of the matrix 
+\begin_inset Formula $\mathbf{W}$
+\end_inset
+
+, and then integrating over 
+\begin_inset Formula $\mathbf{W}$
+\end_inset
+
+ we obtain a marginalised likelihood for 
+\begin_inset Formula $\mathbf{Y}$
+\end_inset
+
+, 
+\begin_inset Formula 
+\begin{equation}
+p\left(\mathbf{Y}|\mathbf{X},\beta\right)=\frac{1}{\left(2\pi\right)^{\frac{DN}{2}}\left|\mathbf{K}\right|^{\frac{D}{2}}}\exp\left(-\frac{1}{2}\textrm{tr}\left(\mathbf{K}^{-1}\mathbf{YY}^{\textrm{T}}\right)\right),\label{eq:appDualPPCAMarginal}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $\mathbf{K}=\mathbf{XX}^{\textrm{T}}+\beta^{-1}\mathbf{I}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathbf{X}=\left[\mathbf{x}_{1}^{\textrm{T}}\dots\mathbf{x}_{N}^{\textrm{T}}\right]^{\textrm{T}}$
+\end_inset
+
+.
+ The structure of this model is shown in 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:probabilisticPCAGraph"
+
+\end_inset
+
+(b).
+ Note that with our earlier definition of 
+\begin_inset Formula $\mathbf{C}=\mathbf{W}\mathbf{W}^{\textrm{T}}+\beta^{-1}\mathbf{I}$
+\end_inset
+
+ we can write the marginal likelihood for standard PPCA (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ppcaMarginaLikelihood"
+
+\end_inset
+
+) as
+\begin_inset Formula 
+\[
+p\left(\mathbf{Y}|\mathbf{W},\beta\right)=\frac{1}{\left(2\pi\right)^{\frac{DN}{2}}\left|\mathbf{C}\right|^{\frac{N}{2}}}\exp\left(-\frac{1}{2}\textrm{tr}\left(\mathbf{C}^{-1}\mathbf{Y}^{\textrm{T}}\mathbf{Y}\right)\right),
+\]
+
+\end_inset
+
+ which highlights to a greater extent the duality between (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:appDualPPCAMarginal"
+
+\end_inset
+
+) and (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ppcaMarginaLikelihood"
+
+\end_inset
+
+).
+ Optimisation of (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:appDualPPCAMarginal"
+
+\end_inset
+
+) is clearly highly related to optimisation of (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ppcaMarginaLikelihood"
+
+\end_inset
+
+).
+ 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Tipping:probpca99"
+literal "true"
+
+\end_inset
+
+ showed how to optimise (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ppcaMarginaLikelihood"
+
+\end_inset
+
+), in the next section we review this optimisation for DPPCA, but generalise
+ it slightly so that it applies for any positive definite matrix 
+\series bold
+
+\begin_inset Formula $\mathbf{S}$
+\end_inset
+
+
+\series default
+, rather than only the inner product matrix 
+\begin_inset Formula $\mathbf{Y}\mathbf{Y}^{\textrm{T}}$
+\end_inset
+
+.
+ First though we make the connection to Gaussian processes by highlighting
+ the fact that (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:appDualPPCAMarginal"
+
+\end_inset
+
+) can be written as
+\begin_inset Formula 
+\begin{equation}
+p\left(\mathbf{Y}|\mathbf{X},\beta\right)=\prod_{i=1}^{D}\frac{1}{\left(2\pi\right)^{\frac{N}{2}}\left|\mathbf{K}\right|^{\frac{1}{2}}}\exp\left(-\frac{1}{2}\mathbf{y}_{:,i}^{\textrm{T}}\mathbf{K}^{-1}\mathbf{y}_{:,i}\right),\label{eq:gplvmLikelihood}
+\end{equation}
+
+\end_inset
+
+here 
+\begin_inset Formula $\mathbf{y}_{:,i}$
+\end_inset
+
+ is the 
+\begin_inset Formula $i$
+\end_inset
+
+th column of 
+\begin_inset Formula $\mathbf{Y}$
+\end_inset
+
+.
+ This likelihood is thus recognised as a product of 
+\begin_inset Formula $D$
+\end_inset
+
+ independent Gaussian processes, each process being associated with a different
+ dimension of the data set.
+ However, here we are suggesting maximising over 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+ as well as the kernel parameters.
+ If 
+\begin_inset Formula $q>D$
+\end_inset
+
+ this maximisation would not be well determined, but as long as 
+\begin_inset Formula $q<D$
+\end_inset
+
+ we are obtaining a reduced dimensional representation of our data.
+ We will now show how, for the case of a linear covariance matrix, this
+ model is equivalent to PCA.
+\end_layout
+
+\begin_layout Subsection
+Maximisation of the Marginal Likelihood
+\end_layout
+
+\begin_layout Standard
+The proof of the maximum likelihood solution for dual probabilistic PCA
+ closely mirrors that given in 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Tipping:probpca99"
+literal "true"
+
+\end_inset
+
+, we include it here for completeness.
+ For a more general proof see 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Lawrence:matching04"
+literal "true"
+
+\end_inset
+
+.
+ Maximising (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:appDualPPCAMarginal"
+
+\end_inset
+
+) is equivalent to minimising its negative logarithm, 
+\begin_inset Formula 
+\begin{equation}
+L=\frac{N}{2}\ln2\pi+\frac{1}{2}\ln\left|\mathbf{K}\right|+\frac{1}{2}\textrm{tr}\left(\mathbf{K}^{-1}\mathbf{S}\right),\label{eq:negEigObjective}
+\end{equation}
+
+\end_inset
+
+where 
+\begin_inset Formula $\mathbf{S}=D^{-1}\mathbf{Y}\mathbf{Y}^{\textrm{T}}$
+\end_inset
+
+.
+ The gradient of the negative log likelihood with respect to 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+ can be found as
+\begin_inset Formula 
+\[
+\frac{\partial L}{\partial\mathbf{X}}=-\mathbf{K}^{-1}\mathbf{S}\mathbf{K}^{-1}\mathbf{X}+\mathbf{K}^{-1}\mathbf{X},
+\]
+
+\end_inset
+
+setting the equation to zero and pre-multiplying by 
+\begin_inset Formula $\mathbf{K}$
+\end_inset
+
+ gives
+\begin_inset Formula 
+\[
+\mathbf{S}\left[\beta^{-1}\mathbf{I}+\mathbf{XX}^{\textrm{T}}\right]^{-1}\mathbf{X}=\mathbf{X}.
+\]
+
+\end_inset
+
+We substitute 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+ with its singular value decomposition, 
+\begin_inset Formula $\mathbf{X}=\mathbf{ULV}^{\textrm{T}}$
+\end_inset
+
+, giving
+\begin_inset Formula 
+\[
+\mathbf{SU}\left[\mathbf{L}+\beta^{-1}\mathbf{L}^{-1}\right]^{-1}\mathbf{V}^{\textrm{T}}=\mathbf{U}\mathbf{LV}^{\textrm{T}}
+\]
+
+\end_inset
+
+Right multiplying both sides by 
+\begin_inset Formula $\mathbf{V}$
+\end_inset
+
+ (note that the solution is invariant to 
+\begin_inset Formula $\mathbf{V}$
+\end_inset
+
+) we have, after some rearrangement,
+\begin_inset Formula 
+\[
+\mathbf{SU}=\mathbf{U}\left(\beta^{-1}\mathbf{I}+\mathbf{L}^{2}\right),
+\]
+
+\end_inset
+
+which, since 
+\begin_inset Formula $\left(\beta^{-1}\mathbf{I}+\mathbf{L}^{2}\right)$
+\end_inset
+
+ is diagonal can be solved by an eigenvalue problem where 
+\begin_inset Formula $\mathbf{U}$
+\end_inset
+
+ are eigenvectors of 
+\begin_inset Formula $\mathbf{S}$
+\end_inset
+
+ and 
+\begin_inset Formula $\Lambda=\left(\beta^{-1}\mathbf{I}+\mathbf{L}^{2}\right)$
+\end_inset
+
+ are the eigenvalues.
+ This implies that the elements from the diagonal of 
+\begin_inset Formula $\mathbf{L}$
+\end_inset
+
+ are given by 
+\begin_inset Formula 
+\begin{equation}
+l_{i}=\left(\lambda_{i}-\beta^{-1}\right)^{\frac{1}{2}}.\label{eq:XeigenvalueUpdate}
+\end{equation}
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Subsection
+The Retained Eigenvalues
+\end_layout
+
+\begin_layout Standard
+If 
+\begin_inset Formula $q<D$
+\end_inset
+
+ we must select which eigenvectors to retain, all eigenvectors are associated
+ with stationary points, so how do we choose which to retain? For convenience
+ let us ignore our previously defined ordering of the eigenvalues in terms
+ of their magnitude and assume that we keep the first 
+\begin_inset Formula $q$
+\end_inset
+
+ eigenvalues.
+ 
+\end_layout
+
+\begin_layout Standard
+First note that
+\begin_inset Formula 
+\[
+\mathbf{K}=\mathbf{U}\left[\mathbf{L}^{2}+\beta^{-1}\mathbf{I}\right]\mathbf{U}^{\textrm{T}}
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $\mathbf{U}$
+\end_inset
+
+ is all the eigenvectors of 
+\series bold
+
+\begin_inset Formula $\mathbf{S}$
+\end_inset
+
+
+\series default
+.
+ The Kullback Leibler (KL) divergence between zero mean Gaussians with covarianc
+es given by 
+\begin_inset Formula $\mathbf{K}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathbf{S}$
+\end_inset
+
+ given by (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:negEigObjective"
+
+\end_inset
+
+) minus the log determinant of 
+\begin_inset Formula $\mathbf{S}$
+\end_inset
+
+, which is constant in 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+.
+ Minimising this KL divergence is thus equivalent to minimising (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:negEigObjective"
+
+\end_inset
+
+).
+\begin_inset Formula 
+\begin{eqnarray*}
+\textrm{KL}\left(\mathbf{S}||\mathbf{K}\right) & = & \frac{1}{2}\ln\left|\mathbf{K}\right|-\frac{1}{2}\ln\left|\mathbf{S}\right|+\frac{1}{2}\textrm{tr}\left(\mathbf{K}^{-1}\mathbf{S}\right)-\frac{N}{2}\\
+ & = & \frac{1}{2}\sum_{i=1}^{q}\ln\lambda_{i}-\frac{N-q}{2}\ln\beta-\frac{1}{2}\sum_{i=1}^{N}\ln\lambda_{i}+\frac{1}{2}\textrm{tr}\left(\left[\mathbf{L}^{2}+\beta^{-1}\mathbf{I}\right]^{-1}\Lambda\right)\\
+ & = & -\frac{1}{2}\sum_{i=q+1}^{N}\ln\lambda_{i}-\frac{N-q}{2}\ln\beta-\frac{N-q}{2}+\frac{\beta}{2}\sum_{i=q+1}^{N}\lambda_{i}
+\end{eqnarray*}
+
+\end_inset
+
+where we have used the fact that 
+\begin_inset Formula $\mathbf{S}=\mathbf{U}\Lambda\mathbf{U}^{\textrm{T}}$
+\end_inset
+
+.
+ Differentiating with respect to 
+\begin_inset Formula $\beta$
+\end_inset
+
+ and setting the result to zero to obtain a fixed point equation then gives
+\begin_inset Formula 
+\[
+\beta=\frac{N-q}{\sum_{i=q+1}^{N}\lambda_{i}}
+\]
+
+\end_inset
+
+which when substituted back leads to 
+\begin_inset Formula 
+\begin{equation}
+\textrm{KL}\left(\mathbf{S}||\mathbf{K}\right)=\frac{N-q}{2}\left(\ln\frac{\sum_{i=q+1}^{N}\lambda_{i}}{N-q}-\frac{1}{N-q}\sum_{i=q+1}^{N}\ln\lambda_{i}\right),\label{eq:pdObjective}
+\end{equation}
+
+\end_inset
+
+which is recognised as the difference between the log ratio of the arithmetic
+ and geometric means of the discarded eigenvalues.
+ This difference will be zero if and only if the discarded eigenvalues are
+ constant (when the arithmetic and geometric means become equal) otherwise
+ it is positive.
+ The difference is minimised by ensuring that the eigenvalues we discard
+ are adjacent to each other in terms of magnitude.
+ 
+\end_layout
+
+\begin_layout Standard
+Which eigenvalues should we then discard? From (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:XeigenvalueUpdate"
+
+\end_inset
+
+) we note that the retained eigenvalues must be larger than 
+\begin_inset Formula $\beta$
+\end_inset
+
+, otherwise 
+\begin_inset Formula $l_{i}$
+\end_inset
+
+ will be complex.
+ The only way this can be true is if we discard the smallest 
+\begin_inset Formula $N-q$
+\end_inset
+
+ eigenvalues.
+\end_layout
+
+\begin_layout Subsection
+Equivalence of Eigenvalue Problems
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:equivEigenvalue"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In Section
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:PPCA"
+
+\end_inset
+
+ we reviewed probabilistic PCA, here we have introduced a new dual version
+ of probabilistic PCA which leads to a different eigenvalue problem.
+ However, these eigenvalue problems are equivalent as we shall now show.
+ For DPPCA the eigenvalue problem is of the form
+\begin_inset Formula 
+\[
+\mathbf{YY}^{\textrm{T}}\mathbf{U}=\mathbf{U}\Lambda.
+\]
+
+\end_inset
+
+Premultiplying by 
+\begin_inset Formula $\mathbf{Y}^{\textrm{T}}$
+\end_inset
+
+ then gives 
+\begin_inset Formula 
+\begin{equation}
+\mathbf{Y}^{\textrm{T}}\mathbf{YY}^{\textrm{T}}\mathbf{U}=\mathbf{Y}^{\textrm{T}}\mathbf{U}\Lambda\label{eq:covarianceEigenProblem}
+\end{equation}
+
+\end_inset
+
+Since 
+\begin_inset Formula $\mathbf{U}$
+\end_inset
+
+ is the eigenvectors of 
+\begin_inset Formula $\mathbf{Y}\mathbf{Y}^{\textrm{T}}$
+\end_inset
+
+ (see the previous section) the matrix 
+\begin_inset Formula $\mathbf{U}^{\textrm{T}}\mathbf{YY}^{\textrm{T}}\mathbf{U}=\Lambda$
+\end_inset
+
+, therefore matrix 
+\begin_inset Formula $\mathbf{U}^{\prime}=\mathbf{Y}^{\textrm{T}}\mathbf{U}\Lambda^{-\frac{1}{2}}$
+\end_inset
+
+ is orthonormal.
+ Post multiplying both sides of (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:covarianceEigenProblem"
+
+\end_inset
+
+) by 
+\begin_inset Formula $\Lambda^{-\frac{1}{2}}$
+\end_inset
+
+ gives
+\begin_inset Formula 
+\[
+\mathbf{Y}^{\textrm{T}}\mathbf{YU}^{\prime}=\mathbf{U}^{\prime}\Lambda
+\]
+
+\end_inset
+
+which is recognised as the form of the eigenvalue problem associated with
+ PPCA as given in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ppcaEigenValueProblem"
+
+\end_inset
+
+), where the eigenvectors of 
+\begin_inset Formula $\mathbf{Y}^{\textrm{T}}\mathbf{Y}$
+\end_inset
+
+ are given by 
+\begin_inset Formula $\mathbf{U}^{\prime}=\mathbf{Y}^{\textrm{T}}\mathbf{U}\Lambda^{-\frac{1}{2}}$
+\end_inset
+
+ and the eigenvalues are given by 
+\begin_inset Formula $\Lambda$
+\end_inset
+
+ (as they were for DPPCA).
+\end_layout
+
+\begin_layout Section
+Non-linear GP-LVM
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:GP-LVMalgorithmic"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We saw in the previous section how PCA can be interpreted as a product of
+ Gaussian processes that maps latent-space points to points in data-space.
+ The positions of the points in the latent-space can be determined by maximising
+ the process likelihood with respect to 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+.
+ It is natural, therefore, to consider alternative GP-LVMs by introducing
+ covariance functions which allow for non-linear processes.
+ The resulting models will not, in general, be optimisable through an eigenvalue
+ problem.
+ 
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename ../diagrams/gpGraphGPLVM.pdf
+	width 35text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+The Gaussian process as a latent variable model, now both kernel parameters,
+ 
+\begin_inset Formula $\boldsymbol{\theta}$
+\end_inset
+
+ and latent positions are optimised.
+ 
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:gplvmGraph"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Optimisation of the Non-linear Model
+\end_layout
+
+\begin_layout Standard
+In Section
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:GPLVM"
+
+\end_inset
+
+ we saw for the linear kernel that a closed form solution for dual PPCA
+ could be obtained up to an arbitrary rotation matrix.
+ For non-linear kernels, such as the RBF kernel and MLP kernel discussed
+ in Section
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "subsec:covarianceFunctions"
+
+\end_inset
+
+ there will be no such closed form solution and there are likely to be multiple
+ local optima.
+ To use a particular kernel in the GP-LVM we first note that gradients of
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:gpMarginal2"
+
+\end_inset
+
+) with respect to the latent points can be found through first taking the
+ gradient with respect to the kernel, 
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial L}{\partial\mathbf{K}}=\mathbf{K}^{-1}\mathbf{YY}^{\textrm{T}}\mathbf{K}^{-1}-D\mathbf{K}^{-1},\label{eq:likelihoodGradK}
+\end{equation}
+
+\end_inset
+
+and then combining it with 
+\begin_inset Formula $\frac{\partial\mathbf{K}}{\partial x_{n,j}}$
+\end_inset
+
+ through the chain rule.
+ As computation of (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:likelihoodGradK"
+
+\end_inset
+
+) is straightforward and independent of the kernel choice we only require
+ that the gradient of the kernel with respect to the latent points can be
+ computed.
+ These gradients may then be used in combination with (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:gpMarginal2"
+
+\end_inset
+
+) in a non-linear optimiser to obtain a latent variable representation of
+ the data.
+ Furthermore, gradients with respect to the parameters of the kernel matrix
+ may be computed and used to jointly optimise 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+ and the kernel's parameters.
+ 
+\end_layout
+
+\begin_layout Standard
+The log-likelihood is a highly non-linear function of the embeddings and
+ the parameters.
+ We are therefore forced to turn to gradient based optimisation of the objective
+ function.
+ In all our experiments we made use of conjugate gradients or the scaled
+ conjugate gradient 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Moller:scg93"
+literal "true"
+
+\end_inset
+
+ algorithm.
+\end_layout
+
+\begin_layout Subsection
+Illustration of GP-LVM via SCG
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:IllustrationGP-LVM"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To illustrate the Gaussian process latent variable model we now make use
+ of the `multi-phase oil flow' data 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Bishop:oil93"
+literal "true"
+
+\end_inset
+
+.
+ This is a twelve dimensional data set containing data of three known classes
+ corresponding to the phase of flow in an oil pipeline: stratified, annular
+ and homogeneous.
+ In 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Bishop:gtm_ncomp98"
+literal "true"
+
+\end_inset
+
+ this data was used to demonstrate the GTM algorithm.
+ Here we use a sub-sampled version of the data (containing 100 data points)
+ to demonstrate the fitting of a GP-LVM with a simple radial basis function
+ (RBF) kernel.
+\end_layout
+
+\begin_layout Standard
+As we saw in Section
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:GPLVM"
+
+\end_inset
+
+, seeking a lower dimensional embedding with PCA is equivalent to a GP-LVM
+ model with a linear kernel,
+\begin_inset Formula 
+\[
+k\left(\mathbf{x}_{n},\mathbf{x}_{m}\right)=\mathbf{x}_{n}^{\textrm{T}}\mathbf{x}_{m}+\beta^{-1}\delta_{nm},
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $\delta_{ij}$
+\end_inset
+
+ is the Kronecker delta function.
+ 
+\end_layout
+
+\begin_layout Standard
+For comparison we visualised the data set using several of the approaches
+ mentioned in the introduction.
+ In Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:oilVisualisation100"
+
+\end_inset
+
+(a) we show the first two principal components of the data.
+ Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:oilVisualisation100"
+
+\end_inset
+
+(b) then shows the visualisation obtained using the GP-LVM with the RBF
+ kernel,
+\begin_inset Formula 
+\[
+k\left(\mathbf{x}_{i},\mathbf{x}_{j}\right)=\alpha_{\textrm{rbf}}\exp\left(-\frac{\gamma}{2}\left(\mathbf{x}_{i}-\mathbf{x}_{j}\right)^{\textrm{T}}\left(\mathbf{x}_{i}-\mathbf{x}_{j}\right)\right)+\alpha_{\textrm{bias}}+\beta^{-1}\delta_{ij}.
+\]
+
+\end_inset
+
+To obtain this visualisation the log likelihood was optimised jointly with
+ respect to the latent positions 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+ and the kernel parameters 
+\begin_inset Formula $\alpha_{\textrm{bias}},\,\alpha_{\textrm{rbf}}$
+\end_inset
+
+, 
+\begin_inset Formula $\beta$
+\end_inset
+
+ and 
+\begin_inset Formula $\gamma$
+\end_inset
+
+.
+ The kernel was initialised using PCA to set 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+, the kernel parameters were initialised as 
+\begin_inset Formula $\alpha_{\textrm{rbf}}=\gamma=1$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta^{-1}=\alpha_{\textrm{bias}}=\exp\left(-1\right)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Note that there is a redundancy in the representation between the overall
+ scale of the matrix 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+ and the value of 
+\begin_inset Formula $\gamma$
+\end_inset
+
+.
+ This redundancy was removed by penalising the log likelihood with half
+ the sum of the squares of each element of 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+: this implies we were actually seeking a MAP solution
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Multiplying the likelihood by this prior leads to a joint distribution over
+ data points and latent points.
+ As a function of 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+ this joint distribution is proportional to the posterior distribution 
+\begin_inset Formula $p\left(\mathbf{X}|\mathbf{Y}\right)$
+\end_inset
+
+, therefore maximising the joint distribution is equivalent to seeking a
+ MAP solution.
+\end_layout
+
+\end_inset
+
+ with a Gaussian prior for 
+\begin_inset Formula $\mathbf{X}$
+\end_inset
+
+,
+\begin_inset Formula 
+\[
+p\left(\mathbf{X}\right)=\prod_{n=1}^{N}N\left(\mathbf{x}_{n}|\mathbf{0},\mathbf{I}\right).
+\]
+
+\end_inset
+
+ 
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/pcaOil100.pdf
+	lyxscale 40
+	width 42text%
+	keepAspectRatio
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/gplvmOil100.pdf
+	lyxscale 40
+	width 42text%
+	keepAspectRatio
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/nonmetricMdsOil100.pdf
+	lyxscale 40
+	width 42text%
+	keepAspectRatio
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/sammonOil100.pdf
+	lyxscale 40
+	width 42text%
+	keepAspectRatio
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/gtmOil100.pdf
+	lyxscale 40
+	width 42text%
+	keepAspectRatio
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/kpcaOil100.pdf
+	lyxscale 40
+	width 42text%
+	keepAspectRatio
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Visualisation of the Oil data with (a) PCA (a linear GP-LVM) and (b) A GP-LVM
+ which uses an RBF kernel, (c) Non-metric MDS using Kruskal's stress, (d)
+ M `Sammon Mapping', (e) GTM and (f) kernel PCA.
+ Red crosses, green circles and blue plus signs represent stratified, annular
+ and homogeneous flows respectively.
+ The greyscales in plot (b) indicate the precision with which the manifold
+ is expressed in data-space for that latent point.
+ 
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:oilVisualisation100"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The likelihood for the RBF kernel was optimised using scaled conjugate gradient
+ (see 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://www.dcs.shef.ac.uk/~neil/gplvmcpp/
+\end_layout
+
+\end_inset
+
+ for the C++ code used).
+\end_layout
+
+\begin_layout Standard
+In Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:oilVisualisation100"
+
+\end_inset
+
+(c) we show the result of non-metric MDS using the stress criterion of 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Kruskal:mds64"
+literal "true"
+
+\end_inset
+
+.
+ Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:oilVisualisation100"
+
+\end_inset
+
+(d) shows the result from the `Sammon mapping' 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Sammon:nonlinear69"
+literal "true"
+
+\end_inset
+
+.
+ To objectively evaluate the quality of the visualisations we classified
+ each data point according to the class of its nearest neighbour in the
+ two dimensional latent-space supplied by each method.
+ The errors made by such a classification are given in Table
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:oil100NNErrors"
+
+\end_inset
+
+.
+ For the GTM and kernel PCA some selection of parameters is required.
+ For GTM we varied the size of the latent grid between 
+\begin_inset Formula $3\times3$
+\end_inset
+
+ and 
+\begin_inset Formula $15\times15$
+\end_inset
+
+, and the number of hidden nodes in the RBF network was varied between 4
+ and 36.
+ The best result was obtained for a 
+\begin_inset Formula $10\times10$
+\end_inset
+
+ latent grid with 25 nodes in the RBF network, it is shown in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:oilVisualisation100"
+
+\end_inset
+
+(e).
+ Note the characteristic gridding effect in the GTM's visualisation which
+ arises from the layout of the latent points.
+ For kernel PCA we used the RBF kernel and varied the kernel width between
+ 0.01 and 100.
+ The best result was obtained for a kernel width of 0.75, the associated
+ visualisation is shown in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:oilVisualisation100"
+
+\end_inset
+
+(f).
+ 
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="7">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Method
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+PCA
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+GP-LVM
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Non-metric MDS
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Metric MDS
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+GTM*
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+kernel PCA*
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Errors
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+13
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+13
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Errors made by the different methods when using the latent-space for nearest
+ neighbour classification in the latent space.
+ Both the GTM and kernel PCA are given asterisks as the result shown is
+ the best obtained for each method from a range of different parameterisations.
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:oil100NNErrors"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+The gradient based optimisation of the RBF based GP-LVM's latent-space shows
+ results which are clearly superior (in terms of separation between the
+ different flow phases) to those achieved by the linear PCA model.
+ The GP-LVM approach leads to a number of errors that is the smallest of
+ all the approaches used.
+ Additionally the use of a Gaussian process to perform our `mapping' means
+ that we can express uncertainty about the positions of the points in the
+ 
+\emph on
+data
+\emph default
+ space.
+ For our formulation of the GP-LVM the level of uncertainty is shared across
+ all 
+\begin_inset Formula $D$
+\end_inset
+
+ dimensions and thus may be visualised in the latent-space.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Visualising the Uncertainty
+\begin_inset CommandInset label
+LatexCommand label
+name "subsec:visualisingUncertainty"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Recall that the likelihood (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:gplvmLikelihood"
+
+\end_inset
+
+) is a product of 
+\begin_inset Formula $D$
+\end_inset
+
+ separate Gaussian processes.
+ In all that has followed we have retained the implicit assumption in PCA
+ that 
+\emph on
+a priori
+\emph default
+ each dimension is identically distributed by assuming that the processes
+ shared the same covariance/kernel function 
+\begin_inset Formula $\mathbf{K}.$
+\end_inset
+
+ Sharing of the covariance function also leads to an 
+\emph on
+a posteriori
+\emph default
+ shared level of uncertainty in each process.
+ While it is possible to use different covariance functions for each dimension
+ and may be necessary when each of the data's attributes have different
+ characteristics
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+A simple example of this is given by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Grochow:styleik04"
+literal "true"
+
+\end_inset
+
+ with the `scaled GP-LVM', where a scale parameter is associated with each
+ dimension of the data.
+\end_layout
+
+\end_inset
+
+; the more constrained model implemented here allows us to visualise the
+ uncertainty in the latent space and will be preferred for our empirical
+ studies
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+The two approaches, constraining each data direction to the same kernel
+ and allowing each data dimension to have its own kernel are somewhat analogous
+ to the difference between probabilistic PCA, where each output data shares
+ a variance, and factor analysis, where each data dimension maintains its
+ own variance.
+\end_layout
+
+\end_inset
+
+.
+ In Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:oilVisualisation100"
+
+\end_inset
+
+(b) (and subsequently) the uncertainty is visualised by varying the intensity
+ of the background pixels.
+ The lighter the pixel the higher the precision of the mapping.
+\end_layout
+
+\begin_layout Subsubsection
+Computational Complexity
+\end_layout
+
+\begin_layout Standard
+While the quality of the results seem good, a quick analysis of the algorithmic
+ complexity shows that each gradient step requires an inverse of the kernel
+ matrix (see (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:likelihoodGradK"
+
+\end_inset
+
+)), an 
+\begin_inset Formula $O\left(N^{3}\right)$
+\end_inset
+
+ operation, rendering the algorithm impractical for many data sets of interest.
+ 
+\end_layout
+
+\begin_layout Subsection
+Large Data Sets
+\end_layout
+
+\begin_layout Standard
+The sparse approximation suggested in 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Lawrence:gplvm03,Lawrence:pnpca05"
+literal "true"
+
+\end_inset
+
+ is a sub-set of data approach 
+\begin_inset CommandInset citation
+LatexCommand citep
+after "pg. 177"
+key "Lawrence:ivm02,Rasmussen:book06"
+literal "true"
+
+\end_inset
+
+.
+ Whilst this approach leads to somewhat simple algorithms for optimisation
+ of the GP-LVM, it suffers from the lack of a convergence criterion and
+ discards information in the data set.
+ A more promising approach to sparsification is suggested for Gaussian process
+ regression by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Snelson:pseudo05"
+literal "true"
+
+\end_inset
+
+ and has recently be placed in a more general framework by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Quinonero:unifying05"
+literal "true"
+
+\end_inset
+
+.
+ The application of this approach in the GP-LVM is available on-line and
+ is the subject of a forthcoming paper 
+\begin_inset CommandInset citation
+LatexCommand citep
+after "in preparation"
+key "Lawrence:largescale06"
+literal "true"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+In Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:gplvmOilVisualise"
+
+\end_inset
+
+ we present visualisations of the oil data using a sub-set of data based
+ sparse GP-LVM algorithm with the RBF kernel.
+ In Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:fullOil"
+
+\end_inset
+
+ we show the data visualised with the non-sparse GP-LVM algorithm.
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename ../diagrams/trOil1.pdf
+	lyxscale 50
+	width 75text%
+	keepAspectRatio
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+The full oil flow data set visualised with an RBF based kernel using sub-set
+ of data approximations.
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:gplvmOilVisualise"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename ../diagrams/fullGplvmOil1000.pdf
+	lyxscale 50
+	width 75text%
+	keepAspectRatio
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+The full GP-LVM algorithm with RBF kernel on the oil flow data (uses the
+ GPLVMCPP toolbox).
+ 
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:fullOil"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+Again we considered a nearest neighbour classifier in the latent-space to
+ quantify the quality of the visualisations.
+ 
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="2" columns="6">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Model
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+PCA
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Sparse GP-LVM (IVM)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+GP-LVM (RBF)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+GTM
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Y
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Errors
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+162
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+24
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Number of errors for nearest neighbour classification in the latent-space
+ for the full oil data set (1000 points).
+ Far right column contains result for nearest neighbour in the data space,
+ also presented is a result for the GTM algorithm.
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:oilClassiificationTable"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+We note that there appears to be a degradation in the quality of the GP-LVM
+ model associated with the sparsification, in comparision to the full GP-LVM
+ algorithm and the sub-set of data based sparse GP-LVM performs worse.
+\end_layout
+
+\begin_layout Subsection
+Back Constraints
+\end_layout
+
+\begin_layout Standard
+An interesting characteristic of the GP-LVM is that it provides a smooth
+ mapping from latent space to the data space.
+ This implies that points which are close in latent space will be close
+ in data space.
+ However, it does not imply that points which are close in data space will
+ be necessarily mapped as close together in latent space.
+ In recent work 
+\begin_inset CommandInset citation
+LatexCommand citep
+after "in preparation"
+key "Lawrence:backconstraints06"
+literal "true"
+
+\end_inset
+
+ the use of back constraints is suggested.
+ Back constraints constrain each latent points to be a smooth function of
+ its corresponding data point.
+ This forces points which are close in data space to be close in latent
+ space.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Motion Capture Data
+\end_layout
+
+\begin_layout Standard
+A neat illustration of the issues that arise when the GP-LVM is used without
+ back constraints is given by a simple motion capture data set.
+ The data consists of a subject breaking into a run from standing
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Data made available by the Ohio State University Advanced Computing Centre
+ for the Arts and Design, available from 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://accad.osu.edu/research/mocap/mocap_data.htm
+\end_layout
+
+\end_inset
+
+, sequence `Figure Run 1' in unprocessed 
+\family typewriter
+.txt
+\family default
+ format.
+\end_layout
+
+\end_inset
+
+.
+ There are approximately three full strides in the sequence.
+ The mean of the data is removed from each frame so in effect the subject
+ is running `in place'.
+ The data is therefore somewhat periodic in nature, however the subject
+ changes the angle of the run throughout the sequence becoming more upright
+ as it proceeds.
+ Our experimental set up was as follows.
+ For both models a GP-LVM with an RBF kernel for a covariance function was
+ used.
+ The back constraint was implemented through an RBF based kernel mapping
+ for which we set 
+\begin_inset Formula $\gamma=1\times10^{-3}$
+\end_inset
+
+.
+ Both models were initialised using PCA.
+ For the RBF model this is straightforward, but for the kernel model this
+ was achieved by setting the kernel parameters, 
+\begin_inset Formula $\mathbf{A}$
+\end_inset
+
+, to minimise the squared distance between the latent positions given by
+ the mapping and those given by PCA.
+ The latent positions/mapping parameters and the GP covariance function
+ parameters were then jointly optimised using conjugate gradients.
+ Scripts for re-implementing these experiments are available on line in
+ the FGPLVM toolbox.
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide true
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demStick1Connected.pdf
+	lyxscale 50
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demStick3Connected.pdf
+	lyxscale 50
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Visualisation of the motion capture data.
+ (a) The regular GP-LVM, log likelihood 1,543 (
+\family typewriter
+demStick1
+\family default
+ in the FGPLVM toolbox) and (b) the GP-LVM with back constraints (
+\family typewriter
+demStick3
+\family default
+), log likelihood 1,000.
+ The paths of the sequences through latent space are shown as solid lines.The
+ back constraint used was an RBF kernel mapping with 
+\begin_inset Formula $\gamma=1\times10^{-3}$
+\end_inset
+
+.
+ In both cases the start of the sequence is towards the top left and the
+ end is towards the bottom centre-left.
+ The grey scale background image indicates the precision with which the
+ mapping is expressed.
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:stickManRun"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The results from visualisation using the GP-LVM both in unconstrained and
+ back constrained forms are shown in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:stickManRun"
+
+\end_inset
+
+.
+ The data is temporal in nature (although the GP-LVM is not taking advantage
+ of this fact) and we have connected points in the plots that are neighbours
+ in time.
+ In Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:stickManRun"
+
+\end_inset
+
+(a) the sequence does not clearly show the periodic nature of the data.
+ The likelihood of this model is higher, as we should expect given that
+ the other model is constrained, however the sequence is split across several
+ sub-sequences
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Note this is 
+\emph on
+not
+\emph default
+ due to overfitting: the model provides a smooth representation of the data
+ which generalises well across the latent space.
+\end_layout
+
+\end_inset
+
+.
+ To reflect the periodic nature of the sequence it is necessary to use a
+ circular structure.
+ Such a structure will be of the form of a squashed spiral which will either
+ have less representational power in the inner rings (analogous to inner
+ groove distortion in gramophone records) or will cross over itself in a
+ manner which is not consistent with the data.
+ The higher likelihood solution turns out to be placing points far apart
+ which are actually close together.
+ Note that the problem arises because the latent space is too constrained.
+ Using a three dimensional latent space alleviates the problem
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+A script to run the experiment is available on line (
+\family typewriter
+demStick4
+\family default
+ in the FGPLVM toolbox).
+\end_layout
+
+\end_inset
+
+ and we expect a two dimensional latent space which is topologically cylindrical
+ would also resolve the issue.
+ The back constrained model shows a squashed spiral structure which reflects
+ the periodic nature of the data and maintains a representation of the angle
+ of the run.
+ The changing angle of the run as the sequence proceeds is depicted in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:stickManRunProjections"
+
+\end_inset
+
+.
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename ../diagrams/demStick3AngleLatent.pdf
+	lyxscale 50
+	width 80col%
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Box Frameless
+position "c"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1pt"
+height_special "totalheight"
+thickness "0.4pt"
+separation "3pt"
+shadowsize "4pt"
+framecolor "black"
+backgroundcolor "none"
+status open
+
+\begin_layout Plain Layout
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demStick3Angle1.pdf
+	lyxscale 40
+	height 1in
+	keepAspectRatio
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demStick3Angle2.pdf
+	lyxscale 40
+	height 1in
+	keepAspectRatio
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+ 
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demStick3Angle3.pdf
+	lyxscale 40
+	height 1in
+	keepAspectRatio
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+ 
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demStick3Angle4.pdf
+	lyxscale 40
+	height 1in
+	keepAspectRatio
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Projection into data space from four points in the latent space.
+ Note how the position in the cycle is the same but the inclination of the
+ runner differs becoming more upright as the sequence proceeds.
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:stickManRunProjections"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Vowel Data
+\end_layout
+
+\begin_layout Standard
+As a further example we considered a single speaker vowel data set.
+ The data consists of the cepstral coefficients and deltas of ten different
+ vowel phonemes and is acquired as part of a vocal joystick system 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Bilmes:vocal06"
+literal "true"
+
+\end_inset
+
+.
+ A particular characteristic of this data set is that PCA, which is used
+ as the initalisation when the back constraints aren't used, fails to separate
+ the data at all.
+ As a result the non-back constrained model tends to fragment the different
+ vowels.
+ The results with the back constrianed model tend to keep like vowels closer
+ together (Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:vowelsBack"
+
+\end_inset
+
+).
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide true
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demVowels2.pdf
+	lyxscale 50
+	width 80col%
+	keepAspectRatio
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demVowels3.pdf
+	lyxscale 50
+	width 80col%
+	keepAspectRatio
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Visualisation of the vowel data (a) without back constraints and (b) with
+ back constraints.
+ The different vowels are shown as follows: 
+\emph on
+/a/
+\emph default
+ red cross 
+\emph on
+/ae/
+\emph default
+ green circle 
+\emph on
+/ao/
+\emph default
+ blue plus 
+\emph on
+/e/
+\emph default
+ cyan asterix 
+\emph on
+/i/
+\emph default
+ magenta square 
+\emph on
+/ibar/
+\emph default
+ yellow diamond 
+\emph on
+/o/
+\emph default
+ red down triangle 
+\emph on
+/schwa/
+\emph default
+ green up triangle and 
+\emph on
+/u/
+\emph default
+ blue left triangle (
+\family typewriter
+\size small
+demVowels2
+\family default
+\size default
+ and 
+\family typewriter
+\size small
+demVowels3
+\family default
+\size default
+ in the FGPLVM toolbox).
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:vowelsBack"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+
+\lang english
+GP-LVM with Dynamics
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+Recently 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Wang:gpdm05"
+literal "true"
+
+\end_inset
+
+ described an approach to applying dynamics to the GP-LVM.
+ To see how this is done, we assume the data is presented in temporal order
+ (
+\emph on
+i.e.
+\emph default
+
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset Formula $\mathbf{y}_{1}$
+\end_inset
+
+ is the first data point in the series and 
+\begin_inset Formula $\mathbf{y}_{N}$
+\end_inset
+
+ is the last).
+ The obvious route to augmenting the model with dynamics is to place a Markov
+ chain distribution over the latent space by defining 
+\begin_inset Formula $p\left(\mathbf{x}_{n}|\mathbf{x}_{n-1}\right)$
+\end_inset
+
+, which gives a prior distribution 
+\begin_inset Formula $p\left(\mathbf{X}\right)=p\left(\mathbf{x}_{1}\right)\prod_{n=2}^{N}p\left(\mathbf{x}_{n}|\mathbf{x}_{n-1}\right)$
+\end_inset
+
+.
+ Of course, combining this prior with 
+\begin_inset Formula $p\left(\mathbf{Y|X}\right)$
+\end_inset
+
+ to obtain the marginal likelihood 
+\begin_inset Formula $p\left(\mathbf{Y}\right)$
+\end_inset
+
+ is in general not tractable.
+ However, it is straightforward to obtain maximum 
+\emph on
+a posteriori
+\emph default
+ (MAP) estimates of the solution.
+ Instead of a simple Markov chain, 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Wang:gpdm05"
+literal "true"
+
+\end_inset
+
+ suggest a Gaussian process to relate 
+\begin_inset Formula $\mathbf{x}_{n}$
+\end_inset
+
+ to 
+\begin_inset Formula $\mathbf{x}_{n-1}$
+\end_inset
+
+.
+ If this GP predicts, at each time step, the change in position for the
+ next time step, the joint likelihood over the latent variables and 
+\begin_inset Formula $\mathbf{Y}$
+\end_inset
+
+ is given by
+\begin_inset Formula 
+\begin{eqnarray}
+p\left(\mathbf{Y},\mathbf{X}\right) & = & -\frac{DN}{2}\log2\pi-\frac{D}{2}\log\left|\mathbf{K}\right|-\frac{1}{2}\textrm{tr}\left(\mathbf{K}^{-1}\mathbf{Y}\mathbf{Y}^{\textrm{T}}\right)\nonumber \\
+ &  & -\frac{qN}{2}\log2\pi-\frac{q}{2}\log\left|\mathbf{K}_{x}\right|-\frac{1}{2}\textrm{tr}\left(\mathbf{K}_{x}^{-1}\left(\hat{\mathbf{X}}-\mathbf{\tilde{\mathbf{X}}}\right)\left(\hat{\mathbf{X}}-\mathbf{\tilde{\mathbf{X}}}\right)^{\textrm{T}}\right),\label{eq:likelihoodWithDynamics}
+\end{eqnarray}
+
+\end_inset
+
+where 
+\begin_inset Formula $\mathbf{\hat{X}}=\left[\mathbf{x}_{2}\dots\mathbf{x}_{N}\right]^{\textrm{T}}$
+\end_inset
+
+ and 
+\begin_inset Formula $\tilde{\mathbf{X}}=\left[\mathbf{x}_{1}\dots\mathbf{x}_{N-1}\right]^{\textrm{T}}$
+\end_inset
+
+ the kernel 
+\begin_inset Formula $\mathbf{K}_{x}$
+\end_inset
+
+ is that associated with the dynamics Gaussian process and is constructed
+ on the matrix 
+\begin_inset Formula $\tilde{\mathbf{X}}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+
+\lang english
+Sampling from Dynamics
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+Consider a dynamics Gaussian process based on an RBF kernel and a white
+ noise term,
+\begin_inset Formula 
+\[
+k\left(\mathbf{x}_{n},\mathbf{x}_{m}\right)=\alpha_{\textrm{rbf}}^{\prime}\exp\left(-\frac{\gamma^{\prime}}{2}\left(\mathbf{x}_{n}-\mathbf{x}_{m}\right)^{\textrm{T}}\left(\mathbf{x}_{n}-\mathbf{x}_{m}\right)\right)+\beta^{\prime-1}\delta_{nm},
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $\delta_{nm}$
+\end_inset
+
+ is the Kronecker delta function.
+ Rather than learning the parameters of the dynamics model we suggest an
+ alternative approach of selecting the dynamics model parameters by hand.
+ Such an approach may seem unwieldy, but there are only three parameters
+ in the covariance function, each of which has a clear interpretation.
+ The signal variance is given by 
+\begin_inset Formula $\alpha_{\textrm{rbf}}^{\prime}$
+\end_inset
+
+ and the noise variance by 
+\begin_inset Formula $\beta^{\prime-1}$
+\end_inset
+
+, thus the signal to noise ratio is given by 
+\begin_inset Formula $\sqrt{\alpha_{\textrm{rbf}}^{\prime}\beta^{\prime}}$
+\end_inset
+
+.
+ The remaining parameter controls the smoothness of the function, taking
+ its square root and inverting, 
+\begin_inset Formula $l=\frac{1}{\sqrt{\gamma}}$
+\end_inset
+
+, gives a parameter known as the 
+\emph on
+characteristic length scale.
+
+\emph default
+ In each dimension the mean level of zero up-crossings in a unit interval
+ is given by 
+\begin_inset Formula $\left(2\pi l\right)^{-1}=\frac{\sqrt{\gamma}}{2\pi}$
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "Rasmussen:book06"
+literal "true"
+
+\end_inset
+
+, this is related to the number of times the dynamics switches direction.
+ For the example given below we used 
+\begin_inset Formula $\gamma=0.2$
+\end_inset
+
+ , 
+\begin_inset Formula $\alpha_{\textrm{rbf}}=0.01$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta^{-1}=1\times10^{-6}$
+\end_inset
+
+ which is equivalent to a signal to noise ratio of 100.
+ In Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:dynamicsSamples"
+
+\end_inset
+
+ we show some examples of two dimensional dynamics fields sampled using
+ parameters in the neighbourhood of those given above.
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+
+\lang english
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/dynSample11.pdf
+	lyxscale 50
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/dynSample21.pdf
+	lyxscale 50
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/dynSample31.pdf
+	lyxscale 50
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/dynSample12.pdf
+	lyxscale 50
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/dynSample22.pdf
+	lyxscale 50
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/dynSample32.pdf
+	lyxscale 50
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\lang english
+Samples from the prior over the latent space dynamics.
+ One sample from each parameterisation is shown.
+ The top row of plots has a signal to noise ratio of 5 and the bottom row
+ is 100.
+ Length scales decrease from left to right, left most column 
+\begin_inset Formula $l=2.24$
+\end_inset
+
+; middle column 
+\begin_inset Formula $l=1$
+\end_inset
+
+; and rightmost column 
+\begin_inset Formula $l=0.447$
+\end_inset
+
+.
+ More specifically the parameters used in each plot are (a) 
+\begin_inset Formula $\gamma^{\prime}=0.2$
+\end_inset
+
+, 
+\begin_inset Formula $\beta^{\prime-1}=4\times10^{-4}$
+\end_inset
+
+, (b) 
+\begin_inset Formula $\gamma^{\prime}=1$
+\end_inset
+
+, 
+\begin_inset Formula $\beta^{\prime}=4\times10^{-4}$
+\end_inset
+
+, (c) 
+\begin_inset Formula $\gamma^{\prime}=5$
+\end_inset
+
+, 
+\begin_inset Formula $\beta^{\prime-1}=4\times10^{-4}$
+\end_inset
+
+, (d) 
+\begin_inset Formula $\gamma^{\prime}=0.2$
+\end_inset
+
+, 
+\begin_inset Formula $\beta^{\prime-1}=1\times10^{-6}$
+\end_inset
+
+, (e) 
+\begin_inset Formula $\gamma^{\prime}=1$
+\end_inset
+
+, 
+\begin_inset Formula $\beta^{\prime-1}=1\times10^{-6}$
+\end_inset
+
+ and (f) 
+\begin_inset Formula $\gamma^{\prime}=5$
+\end_inset
+
+, 
+\begin_inset Formula $\beta^{\prime-1}=4\times10^{-6}$
+\end_inset
+
+ with 
+\begin_inset Formula $\alpha_{\textrm{rbf}}^{\prime}=0.1$
+\end_inset
+
+ for all plots.
+ The overall scale was set to unity.
+ The parameter settings used to produce Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:demStickManDynamics"
+
+\end_inset
+
+ are associated with (d).
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:dynamicsSamples"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+
+\lang english
+Motion Capture Data
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+By selecting a sensible dynamics prior in the latent space the motion capture
+ data again reflects the period nature of the paces (Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:demStickManDynamics"
+
+\end_inset
+
+).
+\begin_inset Separator latexpar
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename ../diagrams/demStick2Connected.pdf
+	lyxscale 50
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Visualisation of the motion capture data using the GP-LVM with dynamics
+ (
+\family typewriter
+demStick2
+\family default
+ in the FGPLVM toolbox) 
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:demStickManDynamics"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Loop Closure in Robotics
+\end_layout
+
+\begin_layout Standard
+In on-going work with Dieter Fox and Brian Ferris at the University of Washingto
+n we are interested in loop closure for robotic navigation, included as
+ a final example is a data set of a robot completing a loop while reading
+ signal strengths from 30 different wireless access points.
+ To produce a neat track and close the loop it turns out it is necessary
+ to use dynamics and back constraints as seen in Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:wirelessRobot"
+
+\end_inset
+
+.
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align block
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demRobotWireless1.pdf
+	lyxscale 50
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demRobotWireless2.pdf
+	lyxscale 50
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demRobotWireless3.pdf
+	lyxscale 50
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename ../diagrams/demRobotWireless4.pdf
+	lyxscale 50
+	width 45text%
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Use of back constraints and dynamics to obtain loop closure in a robot navigatio
+n example.
+ (a) GP-LVM without back constraints or dynamics, (b) GP-LVM with back constrain
+ts, no dynamics, (c) GP-LVM with dynamics, no back constraints, (d) GP-LVM
+ with back constraints and dynamics.
+  These results can be recreated with scripts 
+\family typewriter
+demRobotWireless1
+\family default
+ through 
+\family typewriter
+demRobotWireless4
+\family default
+.
+\begin_inset CommandInset label
+LatexCommand label
+name "cap:wirelessRobot"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+When the GP-LVM is used without dynamics (Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:wirelessRobot"
+
+\end_inset
+
+(a) and (b)) the path in the latent space is noisy.
+ Dynamics forces a tighter path in latent space (Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:wirelessRobot"
+
+\end_inset
+
+(c)) but there is no loop closure.
+ Finally by combining back constraints with dynamics we can obtain loop
+ closure (Figure
+\begin_inset space ~
+\end_inset
+
+
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "cap:wirelessRobot"
+
+\end_inset
+
+(d)).
+\end_layout
+
+\begin_layout Section
+Conclusion
+\end_layout
+
+\begin_layout Standard
+This tutorial has aimed to give an overview of the Gaussian process latent
+ variable model, starting from the perspective of a simple linear latent
+ variable model, and through the introduction of Gaussian processes, finishing
+ with a fully probabilistic approach to non-linear dimensionality reduction.
+ In the results section we showed some simple visualisations achieved with
+ the algorithm and gave an overview of some of the extensions to the algorithm.
+ Code for recreating all the results we presented is available on-line:
+ (
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://www.dcs.shef.ac.uk/~neil/gpsoftware.html
+\end_layout
+
+\end_inset
+
+) and in many cases we have referred to the specific scripts in captions
+ of figures.
+ 
+\end_layout
+
+\begin_layout Standard
+
+\lang english
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "lawrence,other,zbooks"
+options "abbrvnat"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
