@@ -1,6 +1,4 @@
-%% LyX 2.3.6.2 created this file.  For more info, see http://www.lyx.org/.
-%% Do not edit unless you really know what you are doing.
-\documentclass[english,british]{sheftech}
+\documentclass{sheftech}
 \usepackage[T1]{fontenc}
 \usepackage[latin9]{inputenc}
 \setcounter{secnumdepth}{3}
@@ -10,23 +8,17 @@
 \usepackage{amstext}
 \usepackage{graphicx}
 \usepackage[authoryear]{natbib}
+\usepackage{a4wide}
 
 \makeatletter
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
-%% Because html converters don't know tabularnewline
-\providecommand{\tabularnewline}{\\}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
-\usepackage{a4wide}
 
 \@ifundefined{showcaptionsetup}{}{%
  \PassOptionsToPackage{caption=false}{subfig}}
 \usepackage{subfig}
 \makeatother
 
-\usepackage{babel}
-\begin{document}
+tabularnewlinebegin{document}
 \title{The Gaussian Process Latent Variable Model}
 \date{27th January 2006}
 \author{Neil D. Lawrence}
@@ -60,9 +52,9 @@ Finally we shall round off by discussing the characteristics of the
 GP-LVM  and by mentioning some extensions of the model.
 
 In the notes we will make use of examples that can be recreated through
-code downloaded from \url{http://www.dcs.shef.ac.uk/~neil/fgplvm}.
+code downloaded from \url{https://inverseprobability.com/GPmat}.
 An additional package of demonstrations associated with this presentation
-has been placed at \url{http://www.dcs.shef.ac.uk/~neil/oxford}.
+has been placed at \url{https://inverseprobability.com/oxford}.
 
 \section{Motivation}
 
@@ -995,9 +987,9 @@ associated visualisation is shown in Figure~\ref{cap:oilVisualisation100}(f).
 \begin{centering}
 \begin{tabular}{|c||c|c|c|c|c|c|}
 \hline 
-Method & PCA & GP-LVM & Non-metric MDS & Metric MDS & GTM{*} & kernel PCA{*}\tabularnewline
+Method & PCA & GP-LVM & Non-metric MDS & Metric MDS & GTM{*} & kernel PCA{*}\\ 
 \hline 
-Errors & 20 & 4 & 13 & 6 & 7 & 13\tabularnewline
+Errors & 20 & 4 & 13 & 6 & 7 & 13\\ 
 \hline 
 \end{tabular}
 \par\end{centering}
@@ -1083,9 +1075,9 @@ to quantify the quality of the visualisations.
 \begin{centering}
 \begin{tabular}{|c||c|c|c|c|c|}
 \hline 
-Model & PCA & Sparse GP-LVM (IVM) & GP-LVM (RBF) & GTM & Y\tabularnewline
+Model & PCA & Sparse GP-LVM (IVM) & GP-LVM (RBF) & GTM & Y\\ 
 \hline 
-Errors & 162 & 24 & 1 & 11 & 2\tabularnewline
+Errors & 162 & 24 & 1 & 11 & 2\\ 
 \hline 
 \end{tabular}
 \par\end{centering}
@@ -1231,8 +1223,6 @@ and \emph{/u/} blue left triangle (\texttt{\small{}demVowels2} and
 \texttt{\small{}demVowels3} in the FGPLVM toolbox).\label{cap:vowelsBack}}
 \end{figure*}
 
-\selectlanguage{english}%
-
 \subsection{GP-LVM with Dynamics}
 
 Recently \citet{Wang:gpdm05} described an approach to applying dynamics
@@ -1289,28 +1279,28 @@ in the neighbourhood of those given above.
 
 \begin{figure}
 \begin{centering}
-\subfloat[\foreignlanguage{british}{}]{\selectlanguage{british}%
+\subfloat[\foreignlanguage{british}{}]{%
 
-\includegraphics[width=0.3\textwidth]{diagrams/dynSample11}\selectlanguage{english}%
-}\hfill{}\subfloat[\foreignlanguage{british}{}]{\selectlanguage{british}%
+\includegraphics[width=0.3\textwidth]{diagrams/dynSample11}%
+}\hfill{}\subfloat[\foreignlanguage{british}{}]{%
 
-\includegraphics[width=0.3\textwidth]{diagrams/dynSample21}\selectlanguage{english}%
-}\hfill{}\subfloat[\foreignlanguage{british}{}]{\selectlanguage{british}%
+\includegraphics[width=0.3\textwidth]{diagrams/dynSample21}%
+}\hfill{}\subfloat[\foreignlanguage{british}{}]{%
 
-\includegraphics[width=0.3\textwidth]{diagrams/dynSample31}\selectlanguage{english}%
+\includegraphics[width=0.3\textwidth]{diagrams/dynSample31}%
 }\\
-\subfloat[\foreignlanguage{british}{}]{\selectlanguage{british}%
+\subfloat[\foreignlanguage{british}{}]{%
 
-\includegraphics[width=0.3\textwidth]{diagrams/dynSample12}\selectlanguage{english}%
-}\hfill{}\subfloat[\foreignlanguage{british}{}]{\selectlanguage{british}%
+\includegraphics[width=0.3\textwidth]{diagrams/dynSample12}%
+}\hfill{}\subfloat[\foreignlanguage{british}{}]{%
 
-\includegraphics[width=0.3\textwidth]{diagrams/dynSample22}\selectlanguage{english}%
-}\hfill{}\subfloat[\foreignlanguage{british}{}]{\selectlanguage{british}%
+\includegraphics[width=0.3\textwidth]{diagrams/dynSample22}%
+}\hfill{}\subfloat[\foreignlanguage{british}{}]{%
 
-\includegraphics[width=0.3\textwidth]{diagrams/dynSample32}\selectlanguage{english}%
+\includegraphics[width=0.3\textwidth]{diagrams/dynSample32}%
 }
 \par\end{centering}
-\selectlanguage{british}%
+%
 \caption{\foreignlanguage{english}{Samples from the prior over the latent space dynamics. One sample
 from each parameterisation is shown. The top row of plots has a signal
 to noise ratio of 5 and the bottom row is 100. Length scales decrease
@@ -1324,7 +1314,7 @@ $\gamma^{\prime}=5$, $\beta^{\prime-1}=4\times10^{-6}$ with $\alpha_{\textrm{rbf
 for all plots. The overall scale was set to unity. The parameter settings
 used to produce Figure~\ref{cap:demStickManDynamics} are associated
 with (d).\label{cap:dynamicsSamples}}}
-\selectlanguage{english}%
+%
 \end{figure}
 
 
@@ -1333,7 +1323,7 @@ with (d).\label{cap:dynamicsSamples}}}
 By selecting a sensible dynamics prior in the latent space the motion
 capture data again reflects the period nature of the paces (Figure~\ref{cap:demStickManDynamics}).
 
-\selectlanguage{british}%
+%
 \begin{figure}
 \begin{centering}
 \includegraphics[width=0.45\textwidth]{diagrams/demStick2Connected}
@@ -1390,9 +1380,7 @@ is available on-line: (\url{http://www.dcs.shef.ac.uk/~neil/gpsoftware.html})
 and in many cases we have referred to the specific scripts in captions
 of figures. 
 
-\selectlanguage{english}%
 \bibliographystyle{abbrvnat}
 \bibliography{lawrence,other,zbooks}
-\selectlanguage{british}%
 
 \end{document}
